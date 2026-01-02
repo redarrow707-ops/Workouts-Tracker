@@ -21,6 +21,22 @@
         /* Input leggermente più piccoli per farne stare due affiancati */
 
         input { width: 45px; padding: 6px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-size: 1.0rem; }
+
+		/* Stile per il Bottone Stampa */
+        .print-container { text-align: center; margin: 40px 0; }
+        .print-btn { 
+            background-color: #27ae60; 
+            color: white; 
+            padding: 15px 30px; 
+            font-size: 1.2rem; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background 0.3s;
+        }
+        .print-btn:hover { background-color: #219150; }
         
         /* Modal per Immagine */
         #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; }
@@ -28,6 +44,15 @@
         .modal-content img { width: 100%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
         .close-btn { position: absolute; top: -50px; right: 0; color: white; font-size: 40px; cursor: pointer; }
         .ex-title-modal { color: white; margin-bottom: 10px; font-size: 1.1rem; }
+
+		/* Regole per la stampa */
+        @media print {
+            .print-container, #modal, p { display: none !important; }
+            body { background: white; padding: 0; }
+            .day-card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+            .ex-name { text-decoration: none; color: black; }
+            input { border: none; background: transparent; }
+        }
     </style>
 </head>
 <body>
@@ -36,7 +61,11 @@
 <p style="text-align: center; font-size: 1rem; color: #7f8c8d;">Clicca sull'esercizio per l'immagine tecnica. Inserisci Kg e Reps fatte.</p>
 
 <div id="app"></div>
-
+	
+<div class="print-container">
+    <button class="print-btn" onclick="window.print()">🖨️ Stampa la tua Scheda</button>
+</div>
+	
 <div id="modal" onclick="closeImage()">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
@@ -115,9 +144,9 @@ const workout = [
             ["2 - Alzate Laterali / Dumbbell Lateral Raises", "4x10-12", "IMG/Lateralraises.jpg"],
             ["3 - Alzate frontali / Dumbbell Front Raises", "3x8-10", "IMG/Alzatefrontali.jpg"],
             ["4 - Curl bicipiti con manubri / Dumbbell Curl", "4x10-12", "IMG/Dumbbellcurl.jpg"],
-            ["5 - Dumbbell Hammer Curl", "3x10-12", "IMG/Dumbbelhammercurl.jpg"],
-            ["6 - Estensioni dietro la nuca / Overhead Triceps Extensions", "4x16-20", "IMG/Estensionidietro.jpg"],
-	    ["7 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "2x10-12", "IMG/Floorfrenchpress.jpg"],
+            ["5 - Curl a Martello / Dumbbell Hammer Curl", "3x10-12", "IMG/Dumbbelhammercurl.jpg"],
+            ["6 - Estensioni dietro la nuca / Overhead Triceps Extensions", "2x8-10", "IMG/Estensionidietro.jpg"],
+	        ["7 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "4x10-12", "IMG/Floorfrenchpress.jpg"],
             ["8 - Dumbbell Kickback", "4x10-12/Lato", "IMG/Dumbbellkickback.jpg"]
         ]
     },
@@ -204,6 +233,7 @@ render();
 </body>
 
 </html>
+
 
 
 
