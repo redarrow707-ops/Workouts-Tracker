@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.5">
+    <title>Workout Tracker</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f4f4f9; padding: 28px; margin: 0; color: #333; }
+        .day-card { background: white; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 12px 18px rgba(0,0,0,0.08); overflow: hidden; }
+        .day-header { background: #2c3e50; color: white; padding: 16px; margin: 0; font-size: 1.4rem; }
+        .warmup { background: #eef2f7; padding: 12px 16px; font-weight: bold; font-size: 1.2rem; color: #34495e; font-style: italic; border-bottom: 2px solid #dee2e6; }
+        table { width: 100%; border-collapse: collapse; }
+        
+        th { background: #f8f9fa; color: #7f8c8d; font-size: 1.3rem; text-transform: uppercase; padding: 12px 6px; text-align: center; }
+        th.th-ex { text-align: left; padding-left: 20px; } /* Allinea a sinistra solo l'intestazione esercizi */
+        
+        td { padding: 8px 8px; border-bottom: 2px solid #f1f3f4; text-align: center; font-size: 1.4rem; }
+        td.td-ex { text-align: left; padding-left: 24px; } /* Allinea a sinistra solo i nomi esercizi */
+
+        .ex-name { color: #2980b9; font-weight: bold; cursor: pointer; text-decoration: underline; font-size: 1.4rem;}
+        /* Input leggermente più piccoli per farne stare due affiancati */
+
+        input { width: 45px; padding: 6px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-size: 1.4rem; }
+        
+        /* Modal per Immagine */
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; }
+        .modal-content { position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 500px; text-align: center; }
+        .modal-content img { width: 100%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .close-btn { position: absolute; top: -50px; right: 0; color: white; font-size: 40px; cursor: pointer; }
+        .ex-title-modal { color: white; margin-bottom: 10px; font-size: 1.4rem; }
+    </style>
+</head>
+<body>
+
+<h1 style="text-align: center; color: #2c3e50;">Schede Workouts Multifrequenza</h1>
+<p style="text-align: center; font-size: 1rem; color: #7f8c8d;">Clicca sull'esercizio per l'immagine tecnica. Inserisci Kg e Reps fatte.</p>
+
+<div id="app"></div>
+
+<div id="modal" onclick="closeImage()">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <div id="exTitle" class="ex-title-modal"></div>
+        <img id="exImage" src="" alt="Illustrazione esercizio">
+    </div>
+</div>
+
+<script>
+// --- DATI ALLENAMENTO ---
+// Assicurati che le immagini siano nella cartella "img"
+const workout = [
+    {
+        day: "Giorno A: Upper body - CHEST",
+        warm: "Jumping Jacks (2 min)",
+        ex: [
+            ["1 - Spinte Manubri Panca Inclinata", "3x8-10", "img/Spinte Manubri Panca Inclinata.png"],
+            ["2 - Pressa piana bilanciere", "4x8-10", "img/Pressa piana bilanciere.png"],
+            ["3 - Fly manubri a Terra", "4x10-12", "img/Fly manubri a Terra.png"],
+            ["4 - T-Bar", "4x10-12", "img/T bar.png"],
+            ["5 - Lat Machine avanti / Front Lat Pulldown", "3x14-16", "img/Lat machine avanti.png"],
+            ["6 - Low Pulley", "3x16-20", "img/Pulley basso.png"],
+            ["7 - Dip Triceps Bench", "3x10-12", "img/Dip Panca.png"],
+            ["8 - Curl bicipiti alternato", "3x10-12", "img/Curl bicipiti alternato.png"],
+            ["9 - Curl concentrato", "3x10-12", "img/Curl concentrato.png"]
+        ]
+    },
+    {
+        day: "Giorno B: Core 1",
+	warm: "Jumping Jacks (2 min)",
+        ex: [
+            ["1 - Plank", "60s+", "img/Plank.png"],
+            ["2 - Bicycle Crunches", "3x40/60s", "img/Bicycle Crunch.png"],
+            ["3 - Jacknife con palla svizzera / Jacknife Swiss ball", "3x16-18", "img/Jacknife palla svizzera.png"],
+            ["4 - Core AB Wheel Rollout", "3x10-12", "img/Core AB Wheel Rollout.png"],
+            ["5 - Russian Twists", "3x30-32", "img/Russian Twists.png"],
+            ["6 - Plank crunch oblique", "3x10-12", "img/Spiderman Plank.png"],
+            ["7 - V-Up", "3x10-12", "img/vup.png"],
+            ["8 - Sit Up", "4x10-12", "img/Sit Up.png"],
+            ["9 - Hanging Leg Raises", "2x30/60s", "img/Hanging Leg Raises.png"],
+            ["10 - Back Plank o Reverse Plank", "4x30s", "img/Back Plank.png"]
+        ]
+    },
+    {
+        day: "Giorno C: Upper body - BACK",
+        warm: "Jumping Jacks (2 min)",
+        ex: [
+            ["1 - Remata con manubri / Dumbbell Row", "4x10-12", "img/rematore.png"],
+            ["2 - Low Pulley", "4x16-20", "img/Pulley basso.png"],
+            ["3 - Pressa inclinata con bilanciere / Incline Barbell Bench Press", "4x8-10", "img/Incline Bench Press.png"],
+            ["4 - Trazioni alla Sbarra / Pull-ups", "3x8-10", "img/Trazioni alla Sbarra.png"],
+            ["5 - Fly manubri panca inclinata / Incline Dumbbell Fly", "4x10-12", "img/Incline Dumbbell Fly.png"],
+            ["6 - Lat Machine dietro / Behind-the-neck Pulldown", "4x10-12", "img/Behind the neck.png"],
+            ["7 - Push Up", "4x10-12", "img/Push Up.png"],
+            ["8 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "2x10-12", "img/Floor French Press.png"]
+        ]
+    },
+    {
+        day: "Giorno D: Lower body - LEGS",
+        warm: "Jumping Jacks (2 min)",
+        ex: [
+            ["1 - Goblet Squat", "3x10-12", "img/Goblet Squat.png"],
+            ["2 - Affondi alternati con manubri /  Dumbbell Alternate Lunges", "4x10-12/lato", "img/Affondi alternati manubri.png"],
+            ["3 - Landmine Squat Jump", "3x10-12", "img/landmine_squat.png"],
+            ["4 - Landmine Suitcase Squat", "2x10-12", "img/Landmine suitcase squat.png"],
+            ["5 - Sumo Squat", "3x10-12", "img/Sumo Squat.png"],
+            ["6 - Squat bulgari con manubri / Bulgarian Split Squat", "4x8-10", "img/Bulgarian Split Squat.png"],
+            ["7 - Dumbbell Calf Raises", "3x16-20", "img/Calf raises.png"]
+        ]
+    },
+   {
+        day: "Giorno E: Upper body - SHOULDERS",
+        warm: "Jumping Jacks (2 min)",
+        ex: [
+            ["1 - Dumbbell Military Press", "4x8-10", "img/Military press.png"],
+            ["2 - Alzate Laterali / Dumbbell Lateral Raises", "4x10-12", "img/Lateral Raises.png"],
+            ["3 - Alzate frontali / Dumbbell Front Raises", "3x8-10", "img/Alzate frontali.png"],
+            ["4 - Curl bicipiti con manubri / Dumbbell Curl", "4x10-12", "img/Dumbbell Curl.png"],
+            ["5 - Dumbbell Hammer Curl", "3x10-12", "img/Dumbbel hammer curl.png"],
+            ["6 - Estensioni dietro la nuca / Overhead Triceps Extensions", "4x16-20", "img/Estensioni dietro la nuca.png"],
+	    ["7 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "2x10-12", "img/Floor French Press.png"],
+            ["8 - Dumbbell Kickback", "4x10-12/Lato", "img/Dumbbell kickback.png"]
+        ]
+    },
+   {
+        day: "Giorno F: Core 2",
+	warm: "Jumping Jacks (4 min)",
+        ex: [
+            ["1 - Plank", "60s+", "img/Plank.png"],
+            ["2 - Estensioni in quadrupedia / Donkey Kicks", "3x16-18", "img/Donkey Kicks.png"],
+            ["3 - Russian Twists", "3x30-32", "img/Russian Twists.png"],
+            ["4 - Hanging Leg Raises", "2x30/60s", "img/Hanging Leg Raises.png"],
+            ["5 - Crunch gomito ginocchio / Alternate Crunch", "3x28-30", "img/Alternate Crunch.png"],
+            ["6 - Flutter Kicks", "3x16-18", "img/Flutter Kicks.png"],
+            ["7 - Ponte glutei con sovraccarico / Suspension Glute Bridge", "3x18-20", "img/Ponte glutei.png"],
+            ["8 - Burpees", "2x8-10", "img/Burpees.png"],
+            ["9 - Sit Up", "4x10-12", "img/Sit Up.png"],
+	    ["10 - Side Plank", "4x30s", "img/Side Plank.png"],
+            ["11 - Back Plank o Reverse Plank", "4x30s", "img/Back Plank.png"]
+        ]
+	},
+	// Puoi continuare ad aggiungere Giorno D, E ed F qui sotto...
+];
+
+function render() {
+    const app = document.getElementById('app');
+    workout.forEach((w, dayIndex) => {
+        let html = `
+            <div class="day-card">
+                <h2 class="day-header">${w.day}</h2>
+                ${w.warm ? `<div class="warmup"> Riscaldamento: ${w.warm}</div>` : ''}
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="th-ex">Esercizio</th>
+                            <th>Target</th>
+                            <th>Kg</th>
+                            <th>Reps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        w.ex.forEach((e, exIndex) => {
+            // Recupera i valori salvati per Peso e Reps
+            const savedWeight = localStorage.getItem(`weight-${dayIndex}-${exIndex}`) || '';
+            const savedReps = localStorage.getItem(`reps-${dayIndex}-${exIndex}`) || '';
+
+            html += `
+                <tr>
+                    <td class="td-ex"><span class="ex-name" onclick="openImage('${e[0]}', '${e[2]}')">${e[0]}</span></td>
+                    <td style="color:#7f8c8d; font-size:0.85rem">${e[1]}</td>
+                    <td><input type="text" value="${savedWeight}" 
+                        oninput="saveWeight(${dayIndex}, ${exIndex}, this.value)" placeholder="kg"></td>
+                    <td><input type="text" value="${savedReps}" 
+                        oninput="saveReps(${dayIndex}, ${exIndex}, this.value)" placeholder="reps"></td>
+                </tr>
+            `;
+        });
+        html += `</tbody></table></div>`;
+        app.innerHTML += html;
+    });
+}
+
+// Funzioni per Modale Immagini
+function openImage(title, src) {
+    document.getElementById('exTitle').innerText = title;
+    document.getElementById('exImage').src = src;
+    document.getElementById('modal').style.display = 'block';
+}
+function closeImage() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+// Funzioni di Salvataggio Dati
+function saveWeight(day, ex, val) {
+    localStorage.setItem(`weight-${day}-${ex}`, val);
+}
+// Nuova funzione per salvare le Reps
+function saveReps(day, ex, val) {
+    localStorage.setItem(`reps-${day}-${ex}`, val);
+}
+
+render();
+</script>
+</body>
+</html>
