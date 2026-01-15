@@ -1,79 +1,67 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.5">
-    <title>Workouts Tracker 2.0 </title>
-    <style>
-        body { font-family: -apple-system, sans-serif; background: #f4f4f9; padding: 28px; margin: 0; color: #333; }
-        .day-card { background: white; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 12px 18px rgba(0,0,0,0.08); overflow: hidden; }
-        .day-header { background: #2c3e50; color: white; padding: 16px; margin: 0; font-size: 1.4rem; }
-        .warmup { background: #eef2f7; padding: 12px 16px; font-weight: bold; font-size: 1.2rem; color: #34495e; font-style: italic; border-bottom: 2px solid #dee2e6; }
-        table { width: 100%; border-collapse: collapse; }
-        
-        th { background: #f8f9fa; color: #7f8c8d; font-size: 1rem; text-transform: uppercase; padding: 12px 6px; text-align: center; }
-        th.th-ex { text-align: left; padding-left: 20px; } 
-        
-        td { padding: 8px 4px; border-bottom: 2px solid #f1f3f4; text-align: center; font-size: 1.2rem; }
-        td.td-ex { text-align: left; padding-left: 24px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.5">
+<title>Workouts Tracker 2.01</title>
 
-        .ex-name { color: #2980b9; font-weight: bold; cursor: pointer; text-decoration: underline; font-size: 1.2rem;}
-        
-        input { width: 45px; padding: 6px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-size: 1.2rem; }
-        .vol-display { font-weight: bold; color: #27ae60; font-size: 1.1rem; }
+<style>
+body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
+.day-card{background:#fff;border-radius:18px;margin-bottom:30px;box-shadow:0 12px 20px rgba(0,0,0,.1)}
+.day-header{background:#2c3e50;color:#fff;padding:18px;font-size:1.5rem}
+.warmup{background:#eef2f7;padding:14px;font-weight:bold;font-style:italic}
+table{width:100%;border-collapse:collapse}
+th{background:#f8f9fa;color:#7f8c8d;padding:12px;text-transform:uppercase}
+td{border-bottom:1px solid #eee;padding:10px;text-align:center}
+.td-ex{text-align:left;padding-left:20px}
+.ex-name{color:#2980b9;font-weight:bold;cursor:pointer;text-decoration:underline}
+input{width:55px;padding:6px;border-radius:6px;border:1px solid #ccc}
+.vol-display{font-weight:bold;color:#27ae60}
+.day-total{background:#ecf0f1;font-weight:bold;text-align:right;padding:14px}
+.pr{background:#d4f8d4!important;animation:glow .8s}
+@keyframes glow{from{background:#b6f0b6}to{background:#d4f8d4}}
 
-		/* Stile per il Bottone Stampa */
-        .print-container { text-align: center; margin: 40px 0; }
-        .print-btn { 
-            background-color: #27ae60; 
-            color: white; 
-            padding: 15px 30px; 
-            font-size: 1.2rem; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background 0.3s;
-        }
-        .print-btn:hover { background-color: #219150; }
-		/* ******************************************** */
-        
-        /* Modal per Immagine */
-        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; }
-        .modal-content { position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 500px; text-align: center; }
-        .modal-content img { width: 100%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .close-btn { position: absolute; top: -50px; right: 0; color: white; font-size: 40px; cursor: pointer; }
-        .ex-title-modal { color: white; margin-bottom: 10px; font-size: 1.4rem; }
+#globalBar{
+position:sticky;top:0;background:#27ae60;color:white;font-size:1.4rem;
+padding:14px;text-align:center;z-index:999;box-shadow:0 4px 8px rgba(0,0,0,.2)
+}
 
-		/* Regole per la stampa */
-        @media print {
-            .print-container, #modal, p { display: none !important; }
-            body { background: white; padding: 0; }
-            .day-card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
-            .ex-name { text-decoration: none; color: black; }
-            input { border: none; background: transparent; }
-		 }
-		/* ***************************************** */
-    </style>
+/* Stile per il Bottone Stampa */
+.print-container{text-align:center;margin:40px}
+.print-btn{background:#27ae60;color:white;padding:15px 30px;font-size:1.2rem;border:0;border-radius:10px;cursor:pointer}
+
+/* Modal per Immagine */
+
+#modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:2000}
+.modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:500px;width:95%;text-align:center}
+.modal-content img{width:100%;border-radius:12px}
+.close-btn{color:white;font-size:40px;position:absolute;top:-50px;right:0}
+
+/* Regole per la stampa */
+@media print{
+#globalBar,.print-container,#modal{display:none}
+input{border:0;background:none}
+.ex-name{text-decoration:none;color:black}
+}
+</style>
 </head>
 <body>
 
-<h1 style="text-align: center; color: #2c3e50;">Schede Workouts Multifrequenza</h1>
-<p style="text-align: center; font-size: 1rem; color: #7f8c8d;">Inserisci Kg e Ripetizioni Totali. Il volume (Kg x Reps) si calcola automaticamente.</p>
+<div id="globalBar">📊 Volume Totale Settimana: <span id="globalTotal">0</span> kg</div>
 
+<h1 style="text-align:center">Schede Workouts Multifrequenza</h1>
 <div id="app"></div>
 
-	<div class="print-container">
-    <button class="print-btn" onclick="window.print()">🖨️ Stampa la tua Scheda</button>
+<div class="print-container">
+<button class="print-btn" onclick="window.print()">🖨️ Stampa Scheda</button>
 </div>
-	
+
 <div id="modal" onclick="closeImage()">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <div id="exTitle" class="ex-title-modal"></div>
-        <img id="exImage" src="" alt="Illustrazione esercizio">
-    </div>
+<div class="modal-content">
+<div class="close-btn">×</div>
+<div id="exTitle" style="color:white;margin-bottom:10px"></div>
+<img id="exImage">
+</div>
 </div>
 
 <script>
@@ -186,87 +174,61 @@ const workout = [
 	// Puoi continuare ad aggiungere Giorno D, E ed F qui sotto...
 ];
 
-function render() {
-    const app = document.getElementById('app');
-    app.innerHTML = ''; // Pulisce prima di renderizzare
-    workout.forEach((w, dayIndex) => {
-        let html = `
-            <div class="day-card">
-                <h2 class="day-header">${w.day}</h2>
-                ${w.warm ? `<div class="warmup"> Riscaldamento: ${w.warm}</div>` : ''}
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="th-ex">Esercizio</th>
-                            <th>Target</th>
-                            <th>Kg</th>
-                            <th>Tot Reps</th>
-                            <th>Volume</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        w.ex.forEach((e, exIndex) => {
-            const savedWeight = localStorage.getItem(`weight-${dayIndex}-${exIndex}`) || '';
-            const savedReps = localStorage.getItem(`reps-${dayIndex}-${exIndex}`) || '';
-            
-            // Calcolo volume iniziale
-            const initialVolume = (savedWeight && savedReps) ? (parseFloat(savedWeight) * parseFloat(savedReps)).toFixed(1) : '0';
-
-            html += `
-                <tr>
-                    <td class="td-ex"><span class="ex-name" onclick="openImage('${e[0]}', '${e[2]}')">${e[0]}</span></td>
-                    <td style="color:#7f8c8d; font-size:0.8rem">${e[1]}</td>
-                    <td><input type="number" id="w-${dayIndex}-${exIndex}" value="${savedWeight}" 
-                        oninput="updateValues(${dayIndex}, ${exIndex})" placeholder="kg"></td>
-                    <td><input type="number" id="r-${dayIndex}-${exIndex}" value="${savedReps}" 
-                        oninput="updateValues(${dayIndex}, ${exIndex})" placeholder="reps"></td>
-                    <td><span class="vol-display" id="v-${dayIndex}-${exIndex}">${initialVolume}</span> <small>kg</small></td>
-                </tr>
-            `;
-        });
-        html += `</tbody></table></div>`;
-        app.innerHTML += html;
-    });
+function render(){
+const app=document.getElementById('app');
+app.innerHTML='';
+workout.forEach((w,d)=>{
+let html=`<div class="day-card"><div class="day-header">${w.day}</div><div class="warmup">${w.warm}</div><table><thead><tr>
+<th class="th-ex">Esercizio</th><th>Target</th><th>Kg</th><th>Reps</th><th>Volume</th></tr></thead><tbody>`;
+let dayTot=0;
+w.ex.forEach((e,i)=>{
+const wv=localStorage.getItem(`weight-${d}-${i}`)||'';
+const rv=localStorage.getItem(`reps-${d}-${i}`)||'';
+const vol=(wv&&rv)?(wv*rv):0;
+dayTot+=parseFloat(vol);
+html+=`<tr>
+<td class="td-ex"><span class="ex-name" onclick="openImage('${e[0]}','${e[2]}')">${e[0]}</span></td>
+<td>${e[1]}</td>
+<td><input id="w-${d}-${i}" value="${wv}" oninput="updateValues(${d},${i})"></td>
+<td><input id="r-${d}-${i}" value="${rv}" oninput="updateValues(${d},${i})"></td>
+<td><span class="vol-display" id="v-${d}-${i}">${vol.toFixed(1)}</span></td></tr>`;
+});
+html+=`<tr><td colspan="4" class="day-total">Totale Giorno</td>
+<td class="day-total"><span id="day-total-${d}">${dayTot.toFixed(1)}</span></td></tr></tbody></table></div>`;
+app.innerHTML+=html;
+});
+updateGlobalTotal();
 }
 
-// Funzione unificata per salvare e calcolare in tempo reale
-function updateValues(day, ex) {
-    const weightVal = document.getElementById(`w-${day}-${ex}`).value;
-    const repsVal = document.getElementById(`r-${day}-${ex}`).value;
-    const volDisplay = document.getElementById(`v-${day}-${ex}`);
-
-    // Salva nel localStorage
-    localStorage.setItem(`weight-${day}-${ex}`, weightVal);
-    localStorage.setItem(`reps-${day}-${ex}`, repsVal);
-
-    // Calcola Volume
-    if (weightVal && repsVal) {
-        const totalVolume = parseFloat(weightVal) * parseFloat(repsVal);
-        volDisplay.innerText = totalVolume.toFixed(1);
-    } else {
-        volDisplay.innerText = '0';
-    }
+function updateValues(d,i){
+const w=document.getElementById(`w-${d}-${i}`);
+const r=document.getElementById(`r-${d}-${i}`);
+const v=document.getElementById(`v-${d}-${i}`);
+const row=w.closest('tr');
+let vol=0;
+if(w.value&&r.value){vol=w.value*r.value;v.innerText=vol.toFixed(1);} else v.innerText=0;
+localStorage.setItem(`weight-${d}-${i}`,w.value);
+localStorage.setItem(`reps-${d}-${i}`,r.value);
+const best=parseFloat(localStorage.getItem(`best-${d}-${i}`)||0);
+if(vol>best){localStorage.setItem(`best-${d}-${i}`,vol);row.classList.add('pr');setTimeout(()=>row.classList.remove('pr'),800);}
+updateDayTotal(d);updateGlobalTotal();
 }
 
-// Funzioni Modale
-function openImage(title, src) {
-    document.getElementById('exTitle').innerText = title;
-    document.getElementById('exImage').src = src;
-    document.getElementById('modal').style.display = 'block';
+function updateDayTotal(d){
+let t=0;
+workout[d].ex.forEach((_,i)=>{t+=parseFloat(document.getElementById(`v-${d}-${i}`).innerText||0)});
+document.getElementById(`day-total-${d}`).innerText=t.toFixed(1);
 }
-function closeImage() {
-    document.getElementById('modal').style.display = 'none';
+function updateGlobalTotal(){
+let g=0;
+workout.forEach((_,d)=>{g+=parseFloat(document.getElementById(`day-total-${d}`).innerText||0)});
+document.getElementById('globalTotal').innerText=g.toFixed(1);
 }
+
+function openImage(t,s){exTitle.innerText=t;exImage.src=s;modal.style.display="block"}
+function closeImage(){modal.style.display="none"}
 
 render();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
