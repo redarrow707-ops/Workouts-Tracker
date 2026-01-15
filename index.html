@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.5">
-    <title>Workout Tracker</title>
+    <title>Workouts Tracker 2.0 </title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f4f4f9; padding: 28px; margin: 0; color: #333; }
         .day-card { background: white; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 12px 18px rgba(0,0,0,0.08); overflow: hidden; }
@@ -31,6 +31,22 @@
     </style>
 </head>
 <body>
+
+	/* Stile per il Bottone Stampa */
+        .print-container { text-align: center; margin: 40px 0; }
+        .print-btn { 
+            background-color: #27ae60; 
+            color: white; 
+            padding: 15px 30px; 
+            font-size: 1.2rem; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background 0.3s;
+        }
+        .print-btn:hover { background-color: #219150; }
 
 <h1 style="text-align: center; color: #2c3e50;">Schede Workouts Multifrequenza</h1>
 <p style="text-align: center; font-size: 1rem; color: #7f8c8d;">Inserisci Kg e Ripetizioni Totali. Il volume (Kg x Reps) si calcola automaticamente.</p>
@@ -232,3 +248,4 @@ render();
 </script>
 </body>
 </html>
+
