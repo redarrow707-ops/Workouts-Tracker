@@ -3,28 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.5">
-<title>Workouts Tracker 3.01</title>
+<title>Workouts Tracker 3.01 - Pro</title>
 
 <style>
 body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
-.day-card{background:#fff;border-radius:18px;margin-bottom:30px;box-shadow:0 12px 20px rgba(0,0,0,.1)}
+.day-card{background:#fff;border-radius:18px;margin-bottom:30px;box-shadow:0 12px 20px rgba(0,0,0,.1);overflow:hidden}
 .day-header{background:#2c3e50;color:#fff;padding:18px;font-size:1.5rem}
-.warmup{background:#eef2f7;padding:14px;font-weight:bold;font-style:italic}
+.warmup{background:#eef2f7;padding:14px;font-weight:bold;font-style:italic;border-bottom:1px solid #dee2e6}
 table{width:100%;border-collapse:collapse}
 	
-th{background:#f8f9fa;color:#7f8c8d;padding:12px;text-transform:uppercase}
-td{border-bottom:1px solid #eee;padding:10px;text-align:center}
+th{background:#f8f9fa;color:#7f8c8d;padding:12px 6px;text-transform:uppercase;font-size:0.85rem}
+td{border-bottom:1px solid #eee;padding:10px;text-align:center;font-size:1.1rem}
 	
 .td-ex{text-align:left;padding-left:20px}
 .ex-name{color:#2980b9;font-weight:bold;cursor:pointer;text-decoration:underline}
 
-  /* Bottone Link Manuale */
-   .video-link { color: #3498db; text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid #3498db; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; }
-  .video-link:hover { background: #3498db; color: white; }
+/* Bottone Link Manuale */
+.video-link { color: #3498db; text-decoration: none; font-weight: bold; font-size: 0.75rem; border: 1px solid #3498db; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; }
+.video-link:hover { background: #3498db; color: white; }
+
+/* Riga Totale Gialla */
+.total-row { background: #ffff00 !important; font-weight: bold; }
+.total-label { text-align: right; padding-right: 20px; color: #000; text-transform: uppercase; font-size: 0.85rem; }
+.total-value { color: #000; font-size: 1.3rem; text-align: center; }
 	
-input{width:55px;padding:6px;border-radius:6px;border:1px solid #ccc}
+input{width:50px;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;font-size:1.1rem}
 .vol-display{font-weight:bold;color:#27ae60}
-.day-total{background:#ecf0f1;font-weight:bold;text-align:right;padding:14px}
+
 .pr{background:#d4f8d4!important;animation:glow .8s}
 @keyframes glow{from{background:#b6f0b6}to{background:#d4f8d4}}
 
@@ -33,22 +38,19 @@ position:sticky;top:0;background:#27ae60;color:white;font-size:1.4rem;
 padding:14px;text-align:center;z-index:999;box-shadow:0 4px 8px rgba(0,0,0,.2)
 }
 
-/* Stile per il Bottone Stampa */
 .print-container{text-align:center;margin:40px}
 .print-btn{background:#27ae60;color:white;padding:15px 30px;font-size:1.2rem;border:0;border-radius:10px;cursor:pointer}
-
-/* Modal per Immagine */
 
 #modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:2000}
 .modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:500px;width:95%;text-align:center}
 .modal-content img{width:100%;border-radius:12px}
-.close-btn{color:white;font-size:40px;position:absolute;top:-50px;right:0}
+.close-btn{color:white;font-size:40px;position:absolute;top:-50px;right:0;cursor:pointer}
 
-/* Regole per la stampa */
 @media print{
-#globalBar,.print-container,#modal{display:none}
+#globalBar,.print-container,#modal,.video-link{display:none}
 input{border:0;background:none}
 .ex-name{text-decoration:none;color:black}
+.day-card{box-shadow:none;border:1px solid #ccc}
 }
 </style>
 </head>
@@ -56,7 +58,7 @@ input{border:0;background:none}
 
 <div id="globalBar">📊 Volume Totale Settimana: <span id="globalTotal">0</span> kg</div>
 
-<h1 style="text-align:center">Schede Workouts Multifrequenza</h1>
+<h1 style="text-align:center; color:#2c3e50;">Workout Tracker Multifrequenza</h1>
 <div id="app"></div>
 
 <div class="print-container">
@@ -66,183 +68,240 @@ input{border:0;background:none}
 <div id="modal" onclick="closeImage()">
 <div class="modal-content">
 <div class="close-btn">×</div>
-<div id="exTitle" style="color:white;margin-bottom:10px"></div>
+<div id="exTitle" style="color:white;margin-bottom:10px; font-size:1.4rem"></div>
 <img id="exImage">
 </div>
 </div>
 
 <script>
-// --- DATI ALLENAMENTO ---
-// Assicurati che le immagini siano nella cartella "IMG"
+/**
+ * STRUTTURA DATI:
+ * [0] Nome, [1] Target, [2] Immagine, [3] Link Video (opzionale)
+ */
 const workout = [
     {
         day: "Giorno A: Upper body - CHEST",
-        warm: "Jumping Jacks (2 min) - Riposo tra le serie : 2:30 minuti",
+        warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
-            ["1 - Spinte Manubri Panca Inclinata / Incline Dumbbell Press", "3x10-12", "IMG/Spintemanubri.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html"],
-            ["2 - Pressa piana bilanciere / Bench Press", "4x8-10", "IMG/Pressapiana.jpg"],
-            ["3 - Fly manubri a Terra / Ground Dumbbell Fly", "4x10-12", "IMG/Flyterra.jpg"],
-            ["4 - T-Bar", "4x20-24", "IMG/Tbar.jpg"],
-            ["5 - Lat Machine avanti / Front Lat Pulldown", "3x14-16", "IMG/Latmachineavanti.jpg"],
-            ["6 - Dip Triceps Bench", "3x14-16", "IMG/Dippanca.jpg"],
-            ["7 - Curl bicipiti alternato / Alternating Dumbbell Curl", "3x10-12", "IMG/Curlalternato.jpg"],
-            ["8 - Curl concentrato / Concentration Curl", "3x10-12", "IMG/Curlconcentrato.jpg"]
+            ["1 - Spinte Manubri Panca Inclinata", "3x10-12", "IMG/Spintemanubri.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html"],
+            ["2 - Pressa piana bilanciere", "4x8-10", "IMG/Pressapiana.jpg", "#"],
+            ["3 - Fly manubri a Terra", "4x10-12", "IMG/Flyterra.jpg", "#"],
+            ["4 - T-Bar", "4x20-24", "IMG/Tbar.jpg", "#"],
+            ["5 - Lat Machine avanti", "3x14-16", "IMG/Latmachineavanti.jpg", "#"],
+            ["6 - Dip Triceps Bench", "3x14-16", "IMG/Dippanca.jpg", "#"],
+            ["7 - Curl bicipiti alternato", "3x10-12", "IMG/Curlalternato.jpg", "#"],
+            ["8 - Curl concentrato", "3x10-12", "IMG/Curlconcentrato.jpg", "#"]
         ]
     },
     {
         day: "Giorno B: Core 1",
-	warm: "Jumping Jacks (2 min) - Riposo tra le serie : 1:30 minuti",
+	    warm: "Jumping Jacks (2 min) - Riposo : 1:30 min",
         ex: [
-            ["1 - Plank", "60s+", "IMG/Plank.jpg"],
-            ["2 - Bicycle Crunches", "3x40/60s", "IMG/Bicyclecrunch.jpg"],
-            ["3 - Jacknife con palla svizzera / Jacknife Swiss ball", "3x16-18", "IMG/Jacknifepallasvizzera.jpg"],
-            ["4 - Core AB Wheel Rollout", "3x10-12", "IMG/Corewheelrollout.jpg"],
-            ["5 - Russian Twists", "3x30-32", "IMG/Russiantwists.jpg"],
-            ["6 - Crunch obliqui / Spiderman Plank", "3x10-12", "IMG/Spidermancrunch.jpg"],
-            ["7 - V-Up", "3x10-12", "IMG/Vup.jpg"],
-            ["8 - Sit Up", "4x10-12", "IMG/Situp.jpg"],
-            ["9 - Hanging Leg Raises", "2x8-10", "IMG/Hanginglegraises.jpg"],
-            ["10 - Back Plank o Reverse Plank", "4x30s", "IMG/Backplank.jpg"]
+            ["1 - Plank", "60s+", "IMG/Plank.jpg", "#"],
+            ["2 - Bicycle Crunches", "3x40/60s", "IMG/Bicyclecrunch.jpg", "#"],
+            ["3 - Jacknife Swiss ball", "3x16-18", "IMG/Jacknifepallasvizzera.jpg", "#"],
+            ["4 - Core AB Wheel Rollout", "3x10-12", "IMG/Corewheelrollout.jpg", "#"],
+            ["5 - Russian Twists", "3x30-32", "IMG/Russiantwists.jpg", "#"],
+            ["6 - Crunch obliqui", "3x10-12", "IMG/Spidermancrunch.jpg", "#"],
+            ["7 - V-Up", "3x10-12", "IMG/Vup.jpg", "#"],
+            ["8 - Sit Up", "4x10-12", "IMG/Situp.jpg", "#"],
+            ["9 - Hanging Leg Raises", "2x8-10", "IMG/Hanginglegraises.jpg", "#"],
+            ["10 - Back Plank", "4x30s", "IMG/Backplank.jpg", "#"]
         ]
     },
     {
         day: "Giorno C: Upper body - BACK",
-        warm: "Jumping Jacks (2 min) - Riposo tra le serie : 2:30 minuti",
+        warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
-            ["1 - Remata con manubri / Dumbbell Row", "4x10-12", "IMG/Rematore.jpg"],
-            ["2 - Low Pulley", "4x16-20", "IMG/Pulleybasso.jpg"],
-            ["3 - Pressa inclinata con bilanciere / Incline Barbell Bench Press", "4x8-10", "IMG/Inclinebenchpress.jpg"],
-            ["4 - Trazioni alla Sbarra / Pull-ups", "3x8-10", "IMG/Trazionisbarra.jpg"],
-            ["5 - Fly manubri panca inclinata / Incline Dumbbell Fly", "4x10-12", "IMG/Inclinedumbbellfly.jpg"],
-            ["6 - Lat Machine dietro / Behind-the-neck Pulldown", "4x10-12", "IMG/Behindtheneck.jpg"],
-            ["7 - Push Up", "4x10-12", "IMG/Pushup.jpg"],
-            ["8 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "2x10-12", "IMG/Floorfrenchpress.jpg"]
+            ["1 - Remata con manubri", "4x10-12", "IMG/Rematore.jpg", "#"],
+            ["2 - Low Pulley", "4x16-20", "IMG/Pulleybasso.jpg", "#"],
+            ["3 - Pressa inclinata bilanciere", "4x8-10", "IMG/Inclinebenchpress.jpg", "#"],
+            ["4 - Trazioni alla Sbarra", "3x8-10", "IMG/Trazionisbarra.jpg", "#"],
+            ["5 - Fly manubri panca inclinata", "4x10-12", "IMG/Inclinedumbbellfly.jpg", "#"],
+            ["6 - Lat Machine dietro", "4x10-12", "IMG/Behindtheneck.jpg", "#"],
+            ["7 - Push Up", "4x10-12", "IMG/Pushup.jpg", "#"],
+            ["8 - Floor French Press", "2x10-12", "IMG/Floorfrenchpress.jpg", "#"]
         ]
     },
     {
         day: "Giorno D: Lower body - LEGS",
-        warm: "Jumping Jacks (2 min) - Riposo tra le serie : 3 minuti",
+        warm: "Jumping Jacks (2 min) - Riposo : 3 min",
         ex: [
-			["1 - Stacchi da terra con bilanciere / Barbell Deadlift", "3x8-10", "IMG/Deadlift.jpg"],
-            ["2 - Goblet Squat", "3x10-12", "IMG/Gobletsquat.jpg"],
-            ["3 - Affondi alternati con manubri /  Dumbbell Alternate Lunges", "3x10-12/lato", "IMG/Affondialternati.jpg"],
-            ["4 - Landmine Squat Jump", "3x10-12", "IMG/landmine_squat.jpg"],
-            ["5 - Landmine Suitcase Squat", "3x10-12", "IMG/Landminesuitcasesquat.jpg"],
-            ["6 - Sumo Squat", "3x10-12", "IMG/Sumosquat.jpg"],
-            ["7 - Squat bulgari con manubri / Bulgarian Split Squat", "3x8-10", "IMG/Bulgariansplitsquat.jpg"],
-			["8 - Squat cosacchi / Dumbell Cossack Squat", "3x10-12", "IMG/Cossacksquat.jpg"],
-            ["9 - Dumbbell Calf Raises", "3x16-20", "IMG/Calfraises.jpg"]
+			["1 - Stacchi da terra bilanciere", "3x8-10", "IMG/Deadlift.jpg", "#"],
+            ["2 - Goblet Squat", "3x10-12", "IMG/Gobletsquat.jpg", "#"],
+            ["3 - Affondi alternati", "3x10-12/lato", "IMG/Affondialternati.jpg", "#"],
+            ["4 - Landmine Squat Jump", "3x10-12", "IMG/landmine_squat.jpg", "#"],
+            ["5 - Landmine Suitcase Squat", "3x10-12", "IMG/Landminesuitcasesquat.jpg", "#"],
+            ["6 - Sumo Squat", "3x10-12", "IMG/Sumosquat.jpg", "#"],
+            ["7 - Squat bulgari", "3x8-10", "IMG/Bulgariansplitsquat.jpg", "#"],
+			["8 - Squat cosacchi", "3x10-12", "IMG/Cossacksquat.jpg", "#"],
+            ["9 - Dumbbell Calf Raises", "3x16-20", "IMG/Calfraises.jpg", "#"]
         ]
     },
-   {
+    {
         day: "Giorno E: Upper body - SHOULDERS",
-        warm: "Jumping Jacks (2 min) - Riposo tra le serie : 2:30 minuti",
+        warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
-            ["1 - Dumbbell Military Press", "4x8-10", "IMG/Militarypress.jpg"],
-            ["2 - Alzate Laterali / Dumbbell Lateral Raises", "4x10-12", "IMG/Lateralraises.jpg"],
-            ["3 - Alzate frontali / Dumbbell Front Raises", "3x8-10", "IMG/Alzatefrontali.jpg"],
-            ["4 - Curl bicipiti con manubri / Dumbbell Curl", "4x10-12", "IMG/Dumbbellcurl.jpg"],
-            ["5 - Curl a Martello / Dumbbell Hammer Curl", "3x10-12", "IMG/Dumbbelhammercurl.jpg"],
-            ["6 - Estensioni dietro la nuca / Overhead Triceps Extensions", "3x8-10", "IMG/overheadtricepsextensions.jpg"],
-	        ["7 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "4x10-12", "IMG/Floorfrenchpress.jpg"],
-            ["8 - Dumbbell Kickback", "4x10-12/Lato", "IMG/Dumbbellkickback.jpg"]
+            ["1 - Dumbbell Military Press", "4x8-10", "IMG/Militarypress.jpg", "#"],
+            ["2 - Alzate Laterali", "4x10-12", "IMG/Lateralraises.jpg", "#"],
+            ["3 - Alzate frontali", "3x8-10", "IMG/Alzatefrontali.jpg", "#"],
+            ["4 - Curl bicipiti manubri", "4x10-12", "IMG/Dumbbellcurl.jpg", "#"],
+            ["5 - Curl a Martello", "3x10-12", "IMG/Dumbbelhammercurl.jpg", "#"],
+            ["6 - Estensioni dietro nuca", "3x8-10", "IMG/overheadtricepsextensions.jpg", "#"],
+	        ["7 - Floor French Press", "4x10-12", "IMG/Floorfrenchpress.jpg", "#"],
+            ["8 - Dumbbell Kickback", "4x10-12/Lato", "IMG/Dumbbellkickback.jpg", "#"]
         ]
     },
-   {
+    {
         day: "Giorno F: Core 2",
-	warm: "Jumping Jacks (4 min) - Riposo tra le serie : 1:30 minuti",
+	    warm: "Jumping Jacks (4 min) - Riposo : 1:30 min",
         ex: [
-            ["1 - Plank", "60s+", "IMG/Plank.jpg"],
-            ["2 - Estensioni in quadrupedia / Donkey Kicks", "3x16-18", "IMG/Donkeykicks.jpg"],
-            ["3 - Russian Twists", "3x30-32", "IMG/Russiantwists.jpg"],
-            ["4 - Hanging Leg Raises", "2x8-10", "IMG/Hanginglegraises.jpg"],
-            ["5 - Crunch gomito ginocchio / Alternate Crunch", "3x28-30", "IMG/Alternatecrunch.jpg"],
-            ["6 - Flutter Kicks", "3x16-18", "IMG/Flutterkicks.jpg"],
-            ["7 - Ponte glutei con sovraccarico / Suspension Glute Bridge", "3x18-20", "IMG/Ponteglutei.jpg"],
-            ["8 - Burpees", "2x8-10", "IMG/Burpees.jpg"],
-            ["9 - Sit Up", "4x10-12", "IMG/Situp.jpg"],
-	        ["10 - Side Plank", "4x30s", "IMG/Sideplank.jpg"],
-            ["11 - Back Plank o Reverse Plank", "4x30s", "IMG/Backplank.jpg"]
+            ["1 - Plank", "60s+", "IMG/Plank.jpg", "#"],
+            ["2 - Donkey Kicks", "3x16-18", "IMG/Donkeykicks.jpg", "#"],
+            ["3 - Russian Twists", "3x30-32", "IMG/Russiantwists.jpg", "#"],
+            ["4 - Hanging Leg Raises", "2x8-10", "IMG/Hanginglegraises.jpg", "#"],
+            ["5 - Alternate Crunch", "3x28-30", "IMG/Alternatecrunch.jpg", "#"],
+            ["6 - Flutter Kicks", "3x16-18", "IMG/Flutterkicks.jpg", "#"],
+            ["7 - Suspension Glute Bridge", "3x18-20", "IMG/Ponteglutei.jpg", "#"],
+            ["8 - Burpees", "2x8-10", "IMG/Burpees.jpg", "#"],
+            ["9 - Sit Up", "4x10-12", "IMG/Situp.jpg", "#"],
+	        ["10 - Side Plank", "4x30s", "IMG/Sideplank.jpg", "#"],
+            ["11 - Back Plank", "4x30s", "IMG/Backplank.jpg", "#"]
         ]
 	},
 	{
         day: "ARMS SUPERSET",
-        warm: "Jumping Jacks (2 min) - Riposo tra i superset : 2:30 minuti",
+        warm: "Jumping Jacks (2 min) - Riposo tra i superset : 2:30 min",
         ex: [
-            ["A1 - Panca presa stretta / Close Grip Bench Press", "3x8-10", "IMG/Presastretta.jpg"],
-            ["A2 - Curl bicipiti con manubri / Dumbbell Curl", "3x10-12", "IMG/Dumbbellcurl.jpg"],
-            ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg"],
-            ["B1 - Estensione Tricipiti Terra / Dumbbell Floor French Press", "3x10-12", "IMG/Floorfrenchpress.jpg"],
-            ["B2 - Curl Panca Inclinata / Incline DumbbellCurl", "3x10-12", "IMG/Inclinedcurl.jpg"],
-            ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg"],
-	        ["C1 - Pushdown con corda/ Rope Pushdown", "3x12-15", "IMG/Ropepushdown.jpg"],
-            ["C2 - Curl a Martello / Dumbbell Hammer Curl", "3x12-15", "IMG/Dumbbelhammercurl.jpg"],
-			["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg"],
-	        ["D1 - Wrist Curl", "3x12-15", "IMG/Wristcurl.jpg"],
-            ["D2 - Reverse Wrist Curl", "3x12-15", "IMG/Reversewristcurl.jpg"]
+            ["A1 - Panca presa stretta", "3x8-10", "IMG/Presastretta.jpg", "#"],
+            ["A2 - Curl bicipiti manubri", "3x10-12", "IMG/Dumbbellcurl.jpg", "#"],
+            ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
+            ["B1 - Floor French Press", "3x10-12", "IMG/Floorfrenchpress.jpg", "#"],
+            ["B2 - Curl Panca Inclinata", "3x10-12", "IMG/Inclinedcurl.jpg", "#"],
+            ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
+	        ["C1 - Pushdown corda", "3x12-15", "IMG/Ropepushdown.jpg", "#"],
+            ["C2 - Curl a Martello", "3x12-15", "IMG/Dumbbelhammercurl.jpg", "#"],
+			["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
+	        ["D1 - Wrist Curl", "3x12-15", "IMG/Wristcurl.jpg", "#"],
+            ["D2 - Reverse Wrist Curl", "3x12-15", "IMG/Reversewristcurl.jpg", "#"]
         ]
-    },
-	// Puoi continuare ad aggiungere Giorno D, E ed F qui sotto...
+    }
 ];
 
 function render(){
-const app=document.getElementById('app');
-app.innerHTML='';
-workout.forEach((w,d)=>{
-let html=`<div class="day-card"><div class="day-header">${w.day}</div><div class="warmup">${w.warm}</div><table><thead><tr>
-<th class="th-ex">Esercizio</th><th>Target</th><th>Kg</th><th>Reps</th><th>Volume</th></tr></thead><tbody>`;
-let dayTot=0;
-w.ex.forEach((e,i)=>{
-const wv=localStorage.getItem(`weight-${d}-${i}`)||'';
-const rv=localStorage.getItem(`reps-${d}-${i}`)||'';
-const vol=(wv&&rv)?(wv*rv):0;
-dayTot+=parseFloat(vol);
-html+=`<tr>
-<td class="td-ex"><span class="ex-name" onclick="openImage('${e[0]}','${e[2]}')">${e[0]}</span></td>
-<td>${e[1]}</td>
-<td><input id="w-${d}-${i}" value="${wv}" oninput="updateValues(${d},${i})"></td>
-<td><input id="r-${d}-${i}" value="${rv}" oninput="updateValues(${d},${i})"></td>
-<td><span class="vol-display" id="v-${d}-${i}">${vol.toFixed(1)}</span></td></tr>`;
-});
-html+=`<tr><td colspan="4" class="day-total">Totale Giorno</td>
-<td class="day-total"><span id="day-total-${d}">${dayTot.toFixed(1)}</span></td></tr></tbody></table></div>`;
-app.innerHTML+=html;
-});
-updateGlobalTotal();
+    const app=document.getElementById('app');
+    app.innerHTML='';
+    workout.forEach((w,d)=>{
+        let html=`<div class="day-card">
+            <div class="day-header">${w.day}</div>
+            <div class="warmup">${w.warm}</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="th-ex">Esercizio</th>
+                        <th>Target</th>
+                        <th>Video</th>
+                        <th>Kg</th>
+                        <th>Tot Reps</th>
+                        <th>Volume</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        let dayTot=0;
+
+        w.ex.forEach((e,i)=>{
+            const wv=localStorage.getItem(`weight-${d}-${i}`)||'';
+            const rv=localStorage.getItem(`reps-${d}-${i}`)||'';
+            const vol=(wv && rv)?(parseFloat(wv)*parseFloat(rv)):0;
+            dayTot+=vol;
+
+            const manualLink = e[3] || "#";
+
+            html+=`<tr>
+                <td class="td-ex"><span class="ex-name" onclick="openImage('${e[0]}','${e[2]}')">${e[0]}</span></td>
+                <td style="color:#7f8c8d; font-size:0.8rem">${e[1]}</td>
+                <td>${manualLink !== "#" ? `<a href="${manualLink}" target="_blank" class="video-link">Video</a>` : '-'}</td>
+                <td><input type="number" id="w-${d}-${i}" value="${wv}" oninput="updateValues(${d},${i})"></td>
+                <td><input type="number" id="r-${d}-${i}" value="${rv}" oninput="updateValues(${d},${i})"></td>
+                <td><span class="vol-display" id="v-${d}-${i}">${vol.toFixed(1)}</span></td>
+            </tr>`;
+        });
+
+        html+=`</tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="5" class="total-label">Volume Totale Giorno</td>
+                    <td class="total-value"><span id="day-total-${d}">${dayTot.toFixed(1)}</span> kg</td>
+                </tr>
+            </tfoot>
+            </table></div>`;
+        app.innerHTML+=html;
+    });
+    updateGlobalTotal();
 }
 
 function updateValues(d,i){
-const w=document.getElementById(`w-${d}-${i}`);
-const r=document.getElementById(`r-${d}-${i}`);
-const v=document.getElementById(`v-${d}-${i}`);
-const row=w.closest('tr');
-let vol=0;
-if(w.value&&r.value){vol=w.value*r.value;v.innerText=vol.toFixed(1);} else v.innerText=0;
-localStorage.setItem(`weight-${d}-${i}`,w.value);
-localStorage.setItem(`reps-${d}-${i}`,r.value);
-const best=parseFloat(localStorage.getItem(`best-${d}-${i}`)||0);
-if(vol>best){localStorage.setItem(`best-${d}-${i}`,vol);row.classList.add('pr');setTimeout(()=>row.classList.remove('pr'),800);}
-updateDayTotal(d);updateGlobalTotal();
+    const wInput=document.getElementById(`w-${d}-${i}`);
+    const rInput=document.getElementById(`r-${d}-${i}`);
+    const vDisplay=document.getElementById(`v-${d}-${i}`);
+    const row=wInput.closest('tr');
+    
+    let vol=0;
+    if(wInput.value && rInput.value){
+        vol = parseFloat(wInput.value) * parseFloat(rInput.value);
+        vDisplay.innerText = vol.toFixed(1);
+    } else {
+        vDisplay.innerText = "0.0";
+    }
+
+    localStorage.setItem(`weight-${d}-${i}`, wInput.value);
+    localStorage.setItem(`reps-${d}-${i}`, rInput.value);
+
+    // Gestione PR (Personal Record)
+    const best=parseFloat(localStorage.getItem(`best-${d}-${i}`)||0);
+    if(vol > best && vol > 0){
+        localStorage.setItem(`best-${d}-${i}`, vol);
+        row.classList.add('pr');
+        setTimeout(()=>row.classList.remove('pr'), 800);
+    }
+
+    updateDayTotal(d);
+    updateGlobalTotal();
 }
 
 function updateDayTotal(d){
-let t=0;
-workout[d].ex.forEach((_,i)=>{t+=parseFloat(document.getElementById(`v-${d}-${i}`).innerText||0)});
-document.getElementById(`day-total-${d}`).innerText=t.toFixed(1);
+    let t=0;
+    workout[d].ex.forEach((_,i)=>{
+        t += parseFloat(document.getElementById(`v-${d}-${i}`).innerText || 0);
+    });
+    document.getElementById(`day-total-${d}`).innerText = t.toFixed(1);
 }
+
 function updateGlobalTotal(){
-let g=0;
-workout.forEach((_,d)=>{g+=parseFloat(document.getElementById(`day-total-${d}`).innerText||0)});
-document.getElementById('globalTotal').innerText=g.toFixed(1);
+    let g=0;
+    workout.forEach((_,d)=>{
+        const dayVal = document.getElementById(`day-total-${d}`);
+        if(dayVal) g += parseFloat(dayVal.innerText || 0);
+    });
+    document.getElementById('globalTotal').innerText = g.toFixed(1);
 }
 
-function openImage(t,s){exTitle.innerText=t;exImage.src=s;modal.style.display="block"}
-function closeImage(){modal.style.display="none"}
+function openImage(t,s){
+    document.getElementById('exTitle').innerText=t;
+    document.getElementById('exImage').src=s;
+    document.getElementById('modal').style.display="block";
+}
+function closeImage(){
+    document.getElementById('modal').style.display="none";
+}
 
+// Inizializzazione
 render();
 </script>
 </body>
 </html>
+
 
 
 
