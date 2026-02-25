@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.5">
-<title>Workouts Tracker 3.0 - Multi-Schede</title>
+<title>Workouts Tracker 3.01 - Multi-Scheda</title>
 
 <style>
 body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
@@ -26,6 +26,16 @@ td{border-bottom:1px solid #eee;padding:10px;text-align:center;font-size:1.1rem}
 .total-label { text-align: right; padding-right: 20px; color: #000; text-transform: uppercase; font-size: 0.85rem; }
 .total-value { color: #000; font-size: 1.3rem; text-align: center; }
 	
+/* STILE NOTE */
+.notes-container { padding: 15px; background: #fff; border-top: 1px dashed #ccc; }
+.notes-label { display: block; font-weight: bold; color: #7f8c8d; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px; }
+.notes-textarea { 
+    width: 100%; border: 1px solid #eee; border-radius: 8px; padding: 10px; 
+    font-family: inherit; font-size: 1rem; color: #444; background: #fdfdfd; 
+    resize: vertical; min-height: 60px; box-sizing: border-box;
+}
+.notes-textarea:focus { outline: none; border-color: #3498db; background: #fff; }
+
 input{width:50px;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;font-size:1.1rem}
 .vol-display{font-weight:bold;color:#27ae60}
 
@@ -225,7 +235,7 @@ const allWorkouts = {
                     ["3 - Landmine Goblet Squat", "4 x 10-12", "IMG/Gobletsquat.jpg", "https://www.muscleandstrength.com/exercises/landmine-goblet-squat"],
                     ["4 - Romanian Deadlifts", "3 x 8-10", "IMG/Deadlift.jpg", "https://www.muscleandstrength.com/exercises/romanian-deadlift"],
                     ["5 - Alzate Laterali", "3 x 10-12", "IMG/Lateralraises.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lateral-raise.html"],
-		            ["6 - Curl con Bilanciere", "3 x 10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/standing-barbell-curl.html"],
+		    ["6 - Curl con Bilanciere", "3 x 10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/standing-barbell-curl.html"],
                     ["7 - Curl a Martello", "3 x 10-12", "IMG/Dumbbelhammercurl.jpg", "https://www.muscleandstrength.com/exercises/alternate-standing-hammer-curl.html"],
                     ["8 - Dragon Bench Flag", "3 x 12-14", "IMG/Dragonflag.jpg", "https://www.muscleandstrength.com/exercises/dragon-flag"]
                 ]
@@ -250,7 +260,7 @@ const allWorkouts = {
                 ex: [
                 ["1 - Arnold Press", "3 x 10-12", "IMG/Arnoldpress.jpg", "https://www.muscleandstrength.com/exercises/seated-arnold-press.html"],
                 ["2 - Alzate Laterali", "3 x 10-12", "IMG/Lateralraises.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lateral-raise.html"], 
-                ["3 - Landmine su un ginocchio", "3 x 10-12", "IMG/-.jpg", "https://www.muscleandstrength.com/exercises/single-arm-landmine-press"],
+                ["3 - Landmine su un ginocchio", "3 x 10-12", "IMG/a.jpg", "https://www.muscleandstrength.com/exercises/single-arm-landmine-press"],
                 ["4 - Curl Panca Inclinata", "3 x 10-12", "IMG/Inclinedcurl.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-curl.html"],
                 ["5 - Curl concentrato", "3 x 10-12/lato", "IMG/Curlconcentrato.jpg", "https://www.muscleandstrength.com/exercises/concentration-cur.html"],   
                 ["6 - Affondi alternati", "3 x 10-12/lato", "IMG/Affondialternati.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lunge.html"], 
@@ -329,16 +339,29 @@ function render(){
                 <td><span class="vol-display" id="v-${d}-${i}">${vol.toFixed(1)}</span></td>
             </tr>`;
         });
+     
+// Recupero Note salvate
+        const savedNote = localStorage.getItem(`${currentWorkoutID}-notes-${d}`) || '';
 
-        html += `</tbody>
+
+ html += `</tbody>
             <tfoot>
                 <tr class="total-row">
                     <td colspan="5" class="total-label">Volume Totale Giorno</td>
                     <td class="total-value"><span id="day-total-${d}">${dayTot.toFixed(1)}</span> kg</td>
                 </tr>
             </tfoot>
-            </table></div>`;
-        app.innerHTML += html;
+            </table>
+
+<div class="notes-container">
+                <span class="notes-label">Note e sensazioni del giorno:</span>
+                <textarea class="notes-textarea" placeholder="Scrivi qui com'è andato l'allenamento..." 
+                    oninput="saveNote(${d}, this.value)">${savedNote}</textarea>
+            </div>
+
+</div>`;
+       
+ app.innerHTML += html;
     });
     updateGlobalTotal();
 }
@@ -363,6 +386,12 @@ function updateValues(d, i){
     updateDayTotal(d);
     updateGlobalTotal();
 }
+
+// Funzione specifica per salvare le note
+function saveNote(d, val) {
+    localStorage.setItem(`${currentWorkoutID}-notes-${d}`, val);
+}
+
 
 function updateDayTotal(d){
     let t = 0;
@@ -391,4 +420,3 @@ render();
 </script>
 </body>
 </html>
-
