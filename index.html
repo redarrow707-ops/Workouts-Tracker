@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.5">
-<title>Workouts Tracker 3.01 - Pro</title>
+<title>Workouts Tracker 3.0 - Multi-Schede</title>
 
 <style>
 body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
@@ -18,7 +18,6 @@ td{border-bottom:1px solid #eee;padding:10px;text-align:center;font-size:1.1rem}
 .td-ex{text-align:left;padding-left:20px}
 .ex-name{color:#2980b9;font-weight:bold;cursor:pointer;text-decoration:underline}
 
-/* Bottone Link Manuale */
 .video-link { color: #3498db; text-decoration: none; font-weight: bold; font-size: 0.75rem; border: 1px solid #3498db; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; }
 .video-link:hover { background: #3498db; color: white; }
 
@@ -30,13 +29,19 @@ td{border-bottom:1px solid #eee;padding:10px;text-align:center;font-size:1.1rem}
 input{width:50px;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;font-size:1.1rem}
 .vol-display{font-weight:bold;color:#27ae60}
 
+#globalBar{
+position:sticky;top:0;background:#27ae60;color:white;
+padding:10px;text-align:center;z-index:999;box-shadow:0 4px 8px rgba(0,0,0,.2);
+display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+
+/* Selettore Nuova Pagina/Workout */
+#workoutSelector {
+    padding: 8px 15px; border-radius: 8px; border: none; font-size: 1rem; font-weight: bold; cursor: pointer; background: white; color: #27ae60;
+}
+
 .pr{background:#d4f8d4!important;animation:glow .8s}
 @keyframes glow{from{background:#b6f0b6}to{background:#d4f8d4}}
-
-#globalBar{
-position:sticky;top:0;background:#27ae60;color:white;font-size:1.4rem;
-padding:14px;text-align:center;z-index:999;box-shadow:0 4px 8px rgba(0,0,0,.2)
-}
 
 .print-container{text-align:center;margin:40px}
 .print-btn{background:#27ae60;color:white;padding:15px 30px;font-size:1.2rem;border:0;border-radius:10px;cursor:pointer}
@@ -50,19 +55,24 @@ padding:14px;text-align:center;z-index:999;box-shadow:0 4px 8px rgba(0,0,0,.2)
 #globalBar,.print-container,#modal,.video-link{display:none}
 input{border:0;background:none}
 .ex-name{text-decoration:none;color:black}
-.day-card{box-shadow:none;border:1px solid #ccc}
 }
 </style>
 </head>
 <body>
 
-<div id="globalBar">📊 Volume Totale Settimana: <span id="globalTotal">0</span> kg</div>
+<div id="globalBar">
+    <div>📊 Volume Settimanale: <span id="globalTotal">0</span> kg</div>
+    <select id="workoutSelector" onchange="changeWorkout(this.value)">
+        <option value="schedaA">Scheda A: Multifrequenza Standard</option>
+        <option value="schedaB">Scheda B: Multifrequenza V-Athlete</option>
+    </select>
+</div>
 
-<h1 style="text-align:center; color:#2c3e50;">Workout Tracker Multifrequenza</h1>
+<h1 id="mainTitle" style="text-align:center; color:#2c3e50; margin-top:20px;">Workout Tracker</h1>
 <div id="app"></div>
 
 <div class="print-container">
-<button class="print-btn" onclick="window.print()">🖨️ Stampa Scheda</button>
+<button class="print-btn" onclick="window.print()">🖨️ Stampa Scheda Attuale</button>
 </div>
 
 <div id="modal" onclick="closeImage()">
@@ -74,23 +84,23 @@ input{border:0;background:none}
 </div>
 
 <script>
-/**
- * STRUTTURA DATI:
- * [0] Nome, [1] Target, [2] Immagine, [3] Link Video (opzionale)
- */
-const workout = [
-    {
-        day: "Giorno A: Upper body - CHEST",
+// --- DATABASE DEI WORKOUTS ---
+const allWorkouts = {
+    schedaA: {
+        title: "Multifrequenza Standard",
+        days: [
+            {
+                day: "Giorno A: Upper body - CHEST",
         warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
-            ["1 - Spinte Manubri Panca Inclinata", "3x10-12", "IMG/Spintemanubri.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html"],
-            ["2 - Pressa piana bilanciere", "4x8-10", "IMG/Pressapiana.jpg", "https://www.muscleandstrength.com/exercises/barbell-bench-press.html"],
-            ["3 - Fly manubri a Terra", "4x10-12", "IMG/Flyterra.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-flys.html"],
-            ["4 - T-Bar", "4x20-24", "IMG/Tbar.jpg", "https://www.muscleandstrength.com/exercises/bent-over-row.html"],
-            ["5 - Lat Machine avanti", "3x14-16", "IMG/Latmachineavanti.jpg", "https://www.muscleandstrength.com/exercises/wide-grip-pull-down"],
-            ["6 - Dip Triceps Bench", "3x14-16", "IMG/Dippanca.jpg", "https://www.muscleandstrength.com/exercises/tricep-bench-dip.html"],
-            ["7 - Curl bicipiti alternato", "3x10-12", "IMG/Curlalternato.jpg", "https://www.muscleandstrength.com/exercises/alternate-seated-dumbbell-curl.html"],
-            ["8 - Curl concentrato", "3x10-12", "IMG/Curlconcentrato.jpg", "https://www.muscleandstrength.com/exercises/concentration-cur.html"]
+            ["1 - Spinte Manubri Panca Inclinata", "3 x 10-12", "IMG/Spintemanubri.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html"],
+            ["2 - Pressa piana bilanciere", "4 x 8-10", "IMG/Pressapiana.jpg", "https://www.muscleandstrength.com/exercises/barbell-bench-press.html"],
+            ["3 - Fly manubri a Terra", "4 x 10-12", "IMG/Flyterra.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-flys.html"],
+            ["4 - T-Bar", "4 x 20-24", "IMG/Tbar.jpg", "https://www.muscleandstrength.com/exercises/bent-over-row.html"],
+            ["5 - Lat Machine avanti", "3 x 14-16", "IMG/Latmachineavanti.jpg", "https://www.muscleandstrength.com/exercises/wide-grip-pull-down"],
+            ["6 - Dip Triceps Bench", "3 x 14-16", "IMG/Dippanca.jpg", "https://www.muscleandstrength.com/exercises/tricep-bench-dip.html"],
+            ["7 - Curl bicipiti alternato", "3 x 10-12", "IMG/Curlalternato.jpg", "https://www.muscleandstrength.com/exercises/alternate-seated-dumbbell-curl.html"],
+            ["8 - Curl concentrato", "3 x 10-12", "IMG/Curlconcentrato.jpg", "https://www.muscleandstrength.com/exercises/concentration-cur.html"]
         ]
     },
     {
@@ -98,58 +108,58 @@ const workout = [
 	    warm: "Jumping Jacks (2 min) - Riposo : 1:30 min",
         ex: [
             ["1 - Plank", "60s+", "IMG/Plank.jpg", "https://www.muscleandstrength.com/exercises/hover.html"],
-            ["2 - Bicycle Crunches", "3x40/60s", "IMG/Bicyclecrunch.jpg", "https://www.muscleandstrength.com/exercises/abdominal-air-bike.html"],
-            ["3 - Jacknife Swiss ball", "3x16-18", "IMG/Jacknifepallasvizzera.jpg", "https://www.muscleandstrength.com/exercises/bench-jack-knife.html"],
-            ["4 - Core AB Wheel Rollout", "3x10-12", "IMG/Corewheelrollout.jpg", "https://www.muscleandstrength.com/exercises/abdominal-barbell-rollouts.html"],
-            ["5 - Russian Twists", "3x30-32", "IMG/Russiantwists.jpg", "https://www.muscleandstrength.com/exercises/russian-twist.html"],
-            ["6 - Crunch obliqui", "3x10-12", "IMG/Spidermancrunch.jpg", "https://www.muscleandstrength.com/exercises/side-crunch.html"],
-            ["7 - V-Up", "3x10-12", "IMG/Vup.jpg", "https://www.muscleandstrength.com/exercises/floor-reach.html"],
-            ["8 - Sit Up", "4x10-12", "IMG/Situp.jpg", "https://www.muscleandstrength.com/exercises/sit-up.html"],
-            ["9 - Hanging Leg Raises", "2x8-10", "IMG/Hanginglegraises.jpg", "https://www.muscleandstrength.com/exercises/hanging-leg-raise.html"],
-            ["10 - Hollow body Hold Plank", "4x30s", "IMG/Backplank.jpg", "https://www.muscleandstrength.com/exercises/hollow-body-hold"]
+            ["2 - Bicycle Crunches", "3 x 40/60s", "IMG/Bicyclecrunch.jpg", "https://www.muscleandstrength.com/exercises/abdominal-air-bike.html"],
+            ["3 - Jacknife Swiss ball", "3 x 16-18", "IMG/Jacknifepallasvizzera.jpg", "https://www.muscleandstrength.com/exercises/bench-jack-knife.html"],
+            ["4 - Core AB Wheel Rollout", "3 x 10-12", "IMG/Corewheelrollout.jpg", "https://www.muscleandstrength.com/exercises/abdominal-barbell-rollouts.html"],
+            ["5 - Russian Twists", "3 x 30-32", "IMG/Russiantwists.jpg", "https://www.muscleandstrength.com/exercises/russian-twist.html"],
+            ["6 - Crunch obliqui", "3 x 10-12", "IMG/Spidermancrunch.jpg", "https://www.muscleandstrength.com/exercises/side-crunch.html"],
+            ["7 - V-Up", "3 x 10-12", "IMG/Vup.jpg", "https://www.muscleandstrength.com/exercises/floor-reach.html"],
+            ["8 - Sit Up", "4 x 10-12", "IMG/Situp.jpg", "https://www.muscleandstrength.com/exercises/sit-up.html"],
+            ["9 - Hanging Leg Raises", "2 x 8-10", "IMG/Hanginglegraises.jpg", "https://www.muscleandstrength.com/exercises/hanging-leg-raise.html"],
+            ["10 - Hollow body Hold Plank", "4 x 30s", "IMG/Backplank.jpg", "https://www.muscleandstrength.com/exercises/hollow-body-hold"]
         ]
     },
     {
         day: "Giorno C: Upper body - BACK",
         warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
-            ["1 - Remata con manubri", "4x10-12", "IMG/Rematore.jpg", "https://www.muscleandstrength.com/exercises/one-arm-dumbbell-row.html"],
-            ["2 - Low Pulley", "4x16-20", "IMG/Pulleybasso.jpg", "https://www.muscleandstrength.com/exercises/seated-row-using-rope.html"],
-            ["3 - Pressa inclinata bilanciere", "4x8-10", "IMG/Inclinebenchpress.jpg", "https://www.muscleandstrength.com/exercises/incline-bench-press.html"],
-            ["4 - Trazioni alla Sbarra", "3x8-10", "IMG/Trazionisbarra.jpg", "https://www.muscleandstrength.com/exercises/pull-up"],
-            ["5 - Fly manubri panca inclinata", "4x10-12", "IMG/Inclinedumbbellfly.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-flys.html"],
-            ["6 - Lat Machine dietro", "4x10-12", "IMG/Behindtheneck.jpg", "https://www.muscleandstrength.com/exercises/behind-neck-lat-pull-down.html"],
-            ["7 - Push Up", "4x10-12", "IMG/Pushup.jpg", "https://www.muscleandstrength.com/exercises/push-up.html"],
-            ["8 - French Press", "2x10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"]
+            ["1 - Remata con manubri", "4 x 10-12", "IMG/Rematore.jpg", "https://www.muscleandstrength.com/exercises/one-arm-dumbbell-row.html"],
+            ["2 - Low Pulley", "4 x 16-20", "IMG/Pulleybasso.jpg", "https://www.muscleandstrength.com/exercises/seated-row-using-rope.html"],
+            ["3 - Pressa inclinata bilanciere", "4 x 8-10", "IMG/Inclinebenchpress.jpg", "https://www.muscleandstrength.com/exercises/incline-bench-press.html"],
+            ["4 - Trazioni alla Sbarra", "3 x 8-10", "IMG/Trazionisbarra.jpg", "https://www.muscleandstrength.com/exercises/pull-up"],
+            ["5 - Fly manubri panca inclinata", "4 x 10-12", "IMG/Inclinedumbbellfly.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-flys.html"],
+            ["6 - Lat Machine dietro", "4 x 10-12", "IMG/Behindtheneck.jpg", "https://www.muscleandstrength.com/exercises/behind-neck-lat-pull-down.html"],
+            ["7 - Push Up", "4 x 10-12", "IMG/Pushup.jpg", "https://www.muscleandstrength.com/exercises/push-up.html"],
+            ["8 - French Press", "2 x 10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"]
         ]
     },
     {
         day: "Giorno D: Lower body - LEGS",
         warm: "Jumping Jacks (2 min) - Riposo : 3 min",
         ex: [
-			["1 - Stacchi da terra bilanciere", "3x8-10", "IMG/Deadlift.jpg", "https://www.muscleandstrength.com/exercises/deadlifts.html"],
-            ["2 - Goblet Squat", "3x10-12", "IMG/Gobletsquat.jpg", "https://www.muscleandstrength.com/exercises/landmine-goblet-squat"],
-            ["3 - Affondi alternati", "3x10-12/lato", "IMG/Affondialternati.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lunge.html"],
-            ["4 - Landmine Squat Jump", "3x10-12", "IMG/landmine_squat.jpg", "https://www.muscleandstrength.com/exercises/landmine-thruster"],
+	    ["1 - Stacchi da terra bilanciere", "3 x 8-10", "IMG/Deadlift.jpg", "https://www.muscleandstrength.com/exercises/deadlifts.html"],
+            ["2 - Goblet Squat", "3 x 10-12", "IMG/Gobletsquat.jpg", "https://www.muscleandstrength.com/exercises/landmine-goblet-squat"],
+            ["3 - Affondi alternati", "3 x 10-12/lato", "IMG/Affondialternati.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lunge.html"],
+            ["4 - Landmine Squat Jump", "3 x 10-12", "IMG/landmine_squat.jpg", "https://www.muscleandstrength.com/exercises/landmine-thruster"],
             ["5 - Landmine Romanian Deadlift", "3x10-12", "IMG/Landminesuitcasesquat.jpg", "https://www.muscleandstrength.com/exercises/single-leg-landmine-romanian-deadlift"],
-            ["6 - Sumo Squat", "3x10-12", "IMG/Sumosquat.jpg", "https://www.muscleandstrength.com/exercises/one-kettlebell-sumo-deadlift"],
-            ["7 - Squat bulgari", "3x8-10", "IMG/Bulgariansplitsquat.jpg", "https://www.muscleandstrength.com/exercises/one-leg-dumbbell-squat-aka-bulgarian-squat.html"],
-			["8 - Squat Laterali cosacchi", "3x10-12", "IMG/Cossacksquat.jpg", "https://www.muscleandstrength.com/exercises/kettlebell-lateral-lunge"],
-            ["9 - Dumbbell Calf Raises", "3x16-20", "IMG/Calfraises.jpg", "https://www.muscleandstrength.com/exercises/standing-calf-raise.html"]
+            ["6 - Sumo Squat", "3 x 10-12", "IMG/Sumosquat.jpg", "https://www.muscleandstrength.com/exercises/one-kettlebell-sumo-deadlift"],
+            ["7 - Squat bulgari", "3 x 8-10", "IMG/Bulgariansplitsquat.jpg", "https://www.muscleandstrength.com/exercises/one-leg-dumbbell-squat-aka-bulgarian-squat.html"],
+	    ["8 - Squat Laterali cosacchi", "3 x 10-12", "IMG/Cossacksquat.jpg", "https://www.muscleandstrength.com/exercises/kettlebell-lateral-lunge"],
+            ["9 - Dumbbell Calf Raises", "3 x 16-20", "IMG/Calfraises.jpg", "https://www.muscleandstrength.com/exercises/standing-calf-raise.html"]
         ]
     },
     {
         day: "Giorno E: Upper body - SHOULDERS",
         warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
-            ["1 - Dumbbell Military Press", "4x8-10", "IMG/Militarypress.jpg", "https://www.muscleandstrength.com/exercises/military-press.html"],
-            ["2 - Alzate Laterali", "4x10-12", "IMG/Lateralraises.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lateral-raise.html"],
-            ["3 - Alzate frontali", "3x8-10", "IMG/Alzatefrontali.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-front-raise.html"],
-            ["4 - Curl bicipiti manubri", "4x10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/standing-dumbbell-curl.html"],
-            ["5 - Curl a Martello", "3x10-12", "IMG/Dumbbelhammercurl.jpg", "https://www.muscleandstrength.com/exercises/alternate-standing-hammer-curl.html"],
-            ["6 - Estensioni dietro nuca", "3x8-10", "IMG/overheadtricepsextensions.jpg", "https://www.muscleandstrength.com/exercises/two-arm-dumbbell-extension.html"],
-	        ["7 - French Press", "4x10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"],
-            ["8 - Dumbbell Kickback", "4x10-12/Lato", "IMG/Dumbbellkickback.jpg", "https://www.muscleandstrength.com/exercises/tricep-kickback.html"]
+            ["1 - Dumbbell Military Press", "4 x 8-10", "IMG/Militarypress.jpg", "https://www.muscleandstrength.com/exercises/military-press.html"],
+            ["2 - Alzate Laterali", "4 x 10-12", "IMG/Lateralraises.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lateral-raise.html"],
+            ["3 - Alzate frontali", "3 x 8-10", "IMG/Alzatefrontali.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-front-raise.html"],
+            ["4 - Curl bicipiti manubri", "4 x 10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/standing-dumbbell-curl.html"],
+            ["5 - Curl a Martello", "3 x 10-12", "IMG/Dumbbelhammercurl.jpg", "https://www.muscleandstrength.com/exercises/alternate-standing-hammer-curl.html"],
+            ["6 - Estensioni dietro nuca", "3 x 8-10", "IMG/overheadtricepsextensions.jpg", "https://www.muscleandstrength.com/exercises/two-arm-dumbbell-extension.html"],
+	    ["7 - French Press", "4 x 10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"],
+            ["8 - Dumbbell Kickback", "4 x 10-12/Lato", "IMG/Dumbbellkickback.jpg", "https://www.muscleandstrength.com/exercises/tricep-kickback.html"]
         ]
     },
     {
@@ -157,67 +167,160 @@ const workout = [
 	    warm: "Jumping Jacks (4 min) - Riposo : 1:30 min",
         ex: [
             ["1 - Plank", "60s+", "IMG/Plank.jpg", "https://www.muscleandstrength.com/exercises/hover.html"],
-            ["2 - Donkey Kicks", "3x16-18", "IMG/Donkeykicks.jpg", "https://www.muscleandstrength.com/exercises/glute-kick-back.html"],
-            ["3 - Russian Twists", "3x30-32", "IMG/Russiantwists.jpg", "https://www.muscleandstrength.com/exercises/russian-twist.html"],
-            ["4 - Hanging Leg Raises", "2x8-10", "IMG/Hanginglegraises.jpg", "https://www.muscleandstrength.com/exercises/hanging-leg-raise.html"],
-            ["5 - Alternate Crunch", "3x28-30", "IMG/Alternatecrunch.jpg", "https://www.muscleandstrength.com/exercises/twisting-bench-crunch.html"],
-            ["6 - Flutter Kicks", "3x16-18", "IMG/Flutterkicks.jpg", "https://www.muscleandstrength.com/exercises/lying-alternate-floor-leg-raise.html"],
-            ["7 - Suspension Glute Bridge", "3x18-20", "IMG/Ponteglutei.jpg", "https://www.muscleandstrength.com/exercises/barbell-glute-bridge"],
-            ["8 - Walking Lunges", "2x8-10", "IMG/Burpees.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-walking-lunge.html"],
-            ["9 - Sit Up", "4x10-12", "IMG/Situp.jpg", "https://www.muscleandstrength.com/exercises/sit-up.html"],
-	        ["10 - Side Plank", "4x30s", "IMG/Sideplank.jpg", "https://www.muscleandstrength.com/exercises/side-hover.html"]
+            ["2 - Donkey Kicks", "3 x 16-18", "IMG/Donkeykicks.jpg", "https://www.muscleandstrength.com/exercises/glute-kick-back.html"],
+            ["3 - Russian Twists", "3 x 30-32", "IMG/Russiantwists.jpg", "https://www.muscleandstrength.com/exercises/russian-twist.html"],
+            ["4 - Hanging Leg Raises", "2 x 8-10", "IMG/Hanginglegraises.jpg", "https://www.muscleandstrength.com/exercises/hanging-leg-raise.html"],
+            ["5 - Alternate Crunch", "3 x 28-30", "IMG/Alternatecrunch.jpg", "https://www.muscleandstrength.com/exercises/twisting-bench-crunch.html"],
+            ["6 - Flutter Kicks", "3 x 16-18", "IMG/Flutterkicks.jpg", "https://www.muscleandstrength.com/exercises/lying-alternate-floor-leg-raise.html"],
+            ["7 - Suspension Glute Bridge", "3 x 18-20", "IMG/Ponteglutei.jpg", "https://www.muscleandstrength.com/exercises/barbell-glute-bridge"],
+            ["8 - Walking Lunges", "2 x 8-10", "IMG/Walkinglunges.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-walking-lunge.html"],
+            ["9 - Sit Up", "4 x 10-12", "IMG/Situp.jpg", "https://www.muscleandstrength.com/exercises/sit-up.html"],
+	    ["10 - Side Plank", "4 x 30s", "IMG/Sideplank.jpg", "https://www.muscleandstrength.com/exercises/side-hover.html"]
          ]
 	},
 	{
         day: "ARMS SUPERSET",
         warm: "Jumping Jacks (2 min) - Riposo tra i superset : 2:30 min",
         ex: [
-            ["A1 - Panca presa stretta", "3x8-10", "IMG/Presastretta.jpg", "https://www.muscleandstrength.com/exercises/close-grip-bench-press.html"],
-            ["A2 - Curl bicipiti manubri", "3x10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-curl.html"],
+            ["A1 - Panca presa stretta", "3 x 8-10", "IMG/Presastretta.jpg", "https://www.muscleandstrength.com/exercises/close-grip-bench-press.html"],
+            ["A2 - Curl bicipiti manubri", "3 x 10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-curl.html"],
             ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
-            ["B1 - French Press", "3x10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"],
-            ["B2 - Curl Panca Inclinata", "3x10-12", "IMG/Inclinedcurl.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-curl.html"],
+            ["B1 - French Press", "3 x 10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"],
+            ["B2 - Curl Panca Inclinata", "3 x 10-12", "IMG/Inclinedcurl.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-curl.html"],
             ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
-	        ["C1 - Pushdown corda", "3x12-15", "IMG/Ropepushdown.jpg", "https://www.muscleandstrength.com/exercises/tricep-extension.html"],
-            ["C2 - Curl a Martello", "3x12-15", "IMG/Dumbbelhammercurl.jpg", "https://www.muscleandstrength.com/exercises/alternate-standing-hammer-curl.html"],
-			["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
-	        ["D1 - Wrist Curl", "3x12-15", "IMG/Wristcurl.jpg", "https://www.muscleandstrength.com/exercises/barbell-wrist-curl-over-bench.html"],
-            ["D2 - Reverse Wrist Curl", "3x12-15", "IMG/Reversewristcurl.jpg", "https://www.muscleandstrength.com/exercises/reverse-barbell-wrist-curl.html"]
+	    ["C1 - Pushdown corda", "3 x 12-15", "IMG/Ropepushdown.jpg", "https://www.muscleandstrength.com/exercises/tricep-extension.html"],
+            ["C2 - Curl a Martello", "3 x 12-15", "IMG/Dumbbelhammercurl.jpg", "https://www.muscleandstrength.com/exercises/alternate-standing-hammer-curl.html"],
+	    ["RIPOSO 2:30 min", " - ", "IMG/Rest.jpg", "#"],
+	    ["D1 - Wrist Curl", "3 x 12-15", "IMG/Wristcurl.jpg", "https://www.muscleandstrength.com/exercises/barbell-wrist-curl-over-bench.html"],
+            ["D2 - Reverse Wrist Curl", "3 x 12-15", "IMG/Reversewristcurl.jpg", "https://www.muscleandstrength.com/exercises/reverse-barbell-wrist-curl.html"]
+        
+        ]
+            }
+            // ... puoi incollare qui tutti i giorni della tua scheda originale
+        ]
+    },
+    schedaB: {
+        title: "Multifrequenza V-Athlete",
+        days: [
+            {
+                day: "DAY 1: CHEST, BACK, TRICEPS",
+                warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
+                ex: [
+                    ["1 - Pressa piana bilanciere", "4 x 8-10", "IMG/Pressapiana.jpg", "https://www.muscleandstrength.com/exercises/barbell-bench-press.html"],
+                    ["2 - Trazioni alla Sbarra", "3 x max", "IMG/Trazionisbarra.jpg", "https://www.muscleandstrength.com/exercises/pull-up"],
+                    ["3 - Rematore con bilanciere", "3 x 10-12", "IMG/Rematore.jpg", "https://www.muscleandstrength.com/exercises/bent-over-barbell-row.html"],
+                    ["4 - T-Bar", "4 x 20-24", "IMG/Tbar.jpg", "https://www.muscleandstrength.com/exercises/bent-over-row.html"],
+                    ["5 - Fly manubri panca inclinata", "4 x 10-12", "IMG/Inclinedumbbellfly.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-flys.html"],
+                    ["6 - French Press", "3 x 10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"],
+                    ["7 - Dip Tricipiti su panca", "3 x 14-16", "IMG/Dippanca.jpg", "https://www.muscleandstrength.com/exercises/tricep-bench-dip.html"],
+                    ["8 - Core AB Wheel Rollout", "3 x 10-12", "IMG/Corewheelrollout.jpg", "https://www.muscleandstrength.com/exercises/abdominal-barbell-rollouts.html"]
+                ]
+            },
+            {
+                day: "DAY 2: LEGS, SHOULDERS, BICEPS",
+                warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
+                ex: [
+                    ["1 - Squat con Bilanciere", "4 x 8-10", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/front-squat.html"],
+                    ["2 - Dumbbell Military Press", "4 x 8-10", "IMG/Militarypress.jpg", "https://www.muscleandstrength.com/exercises/military-press.html"],
+                    ["3 - Landmine Goblet Squat", "4 x 10-12", "IMG/Gobletsquat.jpg", "https://www.muscleandstrength.com/exercises/landmine-goblet-squat"],
+                    ["4 - Romanian Deadlifts", "3 x 8-10", "IMG/Deadlift.jpg", "https://www.muscleandstrength.com/exercises/romanian-deadlift"],
+                    ["5 - Alzate Laterali", "3 x 10-12", "IMG/Lateralraises.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lateral-raise.html"],
+		    ["6 - Curl con Bilanciere", "3 x 10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/standing-barbell-curl.html"],
+                    ["7 - Curl a Martello", "3 x 10-12", "IMG/Dumbbelhammercurl.jpg", "https://www.muscleandstrength.com/exercises/alternate-standing-hammer-curl.html"],
+                    ["8 - Dragon Bench Flag", "3 x 12-14", "IMG/Dragonflag.jpg", "https://www.muscleandstrength.com/exercises/dragon-flag"]
+                ]
+            },
+            {
+                day: "DAY 3: BACK, CHEST, TRICEPS",
+                warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
+                ex: [
+                ["1 - Chin-Up", "3 x max", "IMG/Trazionisbarra.jpg", "https://www.muscleandstrength.com/exercises/weighted-chin-up"],
+                ["2 - Pressa inclinata bilanciere", "4 x 8-10", "IMG/Inclinebenchpress.jpg", "https://www.muscleandstrength.com/exercises/incline-bench-press.html"],
+                ["3 - Rematore a un braccio", "3 x 10-12/lato", "IMG/Rematore.jpg", "https://www.muscleandstrength.com/exercises/one-arm-dumbbell-row.html"], 
+                ["4 - Pressa piana bilanciere", "3 x 8-10", "IMG/Pressapiana.jpg", "https://www.muscleandstrength.com/exercises/barbell-bench-press.html"],
+                ["5 - Landmine ad un braccio", "3 x 10-12", "IMG/-.jpg", "https://www.muscleandstrength.com/exercises/single-arm-landmine-press"],
+                ["6 - Estensioni dietro nuca", "3 x 8-10", "IMG/overheadtricepsextensions.jpg", "https://www.muscleandstrength.com/exercises/two-arm-dumbbell-extension.html"],
+                ["7 - Push Up a presa stretta", "3 x max", "IMG/Pushup.jpg", "https://www.muscleandstrength.com/exercises/plyometric-clapping-push-up"],
+                ["8 - Core AB Wheel Rollout", "3 x 10-12", "IMG/Corewheelrollout.jpg", "https://www.muscleandstrength.com/exercises/abdominal-barbell-rollouts.html"]
+               ]
+            },
+            {                 
+                day: "DAY 4: SHOULDERS, BICEPS, LEGS",
+                warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
+                ex: [
+                ["1 - Arnold Press", "3 x 10-12", "IMG/Arnoldpress.jpg", "https://www.muscleandstrength.com/exercises/seated-arnold-press.html"],
+                ["2 - Alzate Laterali", "3 x 10-12", "IMG/Lateralraises.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lateral-raise.html"], 
+                ["3 - Landmine su un ginocchio", "3 x 10-12", "IMG/-.jpg", "https://www.muscleandstrength.com/exercises/single-arm-landmine-press"],
+                ["4 - Curl Panca Inclinata", "3 x 10-12", "IMG/Inclinedcurl.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-curl.html"],
+                ["5 - Curl concentrato", "3 x 10-12/lato", "IMG/Curlconcentrato.jpg", "https://www.muscleandstrength.com/exercises/concentration-cur.html"],   
+                ["6 - Affondi alternati", "3 x 10-12/lato", "IMG/Affondialternati.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lunge.html"], 
+                ["7 - Leg Curl su Palla Svizzera", "3 x 15", "IMG/a.jpg", "https://www.muscleandstrength.com/exercises/exercise-ball-hamstring-curl"],
+                ["8 - Polpacci su Palla Svizzera", "3 x 15", "IMG/a.jpg", "https://www.muscleandstrength.com/exercises/exercise-ball-on-the-wall-calf-raise.html"]
+            ]
+            },
+            {  
+                day: "DAY 5: CORE",
+                warm: "Jumping Jacks (2 min) - Riposo : 1:30 min",
+                ex: [
+                ["1 - Plank su Palla Svizzera", "3 x 60sec", "IMG/Plank.jpg", "https://www.muscleandstrength.com/exercises/swiss-ball-hover.html"],
+                ["2 - Hanging Leg Raises", "2 x 8-10", "IMG/Hanginglegraises.jpg", "https://www.muscleandstrength.com/exercises/hanging-leg-raise.html"],
+                ["3 - Russian Twists", "3 x 30-32", "IMG/Russiantwists.jpg", "https://www.muscleandstrength.com/exercises/russian-twist.html"],
+                ["4 - Jackknife su Panca", "3 x 10-12", "IMG/a.jpg", "https://www.muscleandstrength.com/exercises/bench-jack-knife.html"],
+                ["5 - Core AB Wheel Rollout", "3 x 10-12", "IMG/Corewheelrollout.jpg", "https://www.muscleandstrength.com/exercises/abdominal-barbell-rollouts.html"],   
+                ["6 - Good Morning da seduti", "3 x 10-12/lato", "IMG/Affondialternati.jpg", "https://www.muscleandstrength.com/exercises/seated-good-mornings.html"], 
+                ["7 - Landmine Rotations", "3 x 15", "IMG/a.jpg", "https://www.muscleandstrength.com/exercises/landmine-rotation"],
+                ["8 - Side Plank", "4 x 30s", "IMG/Sideplank.jpg", "https://www.muscleandstrength.com/exercises/side-hover.html"]
+                ]
+            }
         ]
     }
-];
+};
+
+let currentWorkoutID = localStorage.getItem('selectedWorkout') || 'schedaA';
+
+function changeWorkout(id) {
+    currentWorkoutID = id;
+    localStorage.setItem('selectedWorkout', id);
+    render();
+}
 
 function render(){
-    const app=document.getElementById('app');
-    app.innerHTML='';
-    workout.forEach((w,d)=>{
-        let html=`<div class="day-card">
+    const app = document.getElementById('app');
+    const workoutData = allWorkouts[currentWorkoutID];
+    document.getElementById('mainTitle').innerText = workoutData.title;
+    document.getElementById('workoutSelector').value = currentWorkoutID;
+    
+    app.innerHTML = '';
+    
+    workoutData.days.forEach((w, d) => {
+        let html = `<div class="day-card">
             <div class="day-header">${w.day}</div>
             <div class="warmup">${w.warm}</div>
             <table>
                 <thead>
                     <tr>
-                        <th class="th-ex">Esercizio - clicca sul nome per l'immagine -</th>
+                        <th class="th-ex">Esercizio</th>
                         <th>Target</th>
                         <th>Video</th>
                         <th>Kg</th>
-                        <th>Tot Reps</th>
+                        <th>Reps</th>
                         <th>Volume</th>
                     </tr>
                 </thead>
                 <tbody>`;
         
-        let dayTot=0;
+        let dayTot = 0;
 
-        w.ex.forEach((e,i)=>{
-            const wv=localStorage.getItem(`weight-${d}-${i}`)||'';
-            const rv=localStorage.getItem(`reps-${d}-${i}`)||'';
-            const vol=(wv && rv)?(parseFloat(wv)*parseFloat(rv)):0;
-            dayTot+=vol;
+        w.ex.forEach((e, i) => {
+            // NOTA: La chiave di salvataggio ora include l'ID del workout per non sovrascrivere i dati
+            const wv = localStorage.getItem(`${currentWorkoutID}-weight-${d}-${i}`) || '';
+            const rv = localStorage.getItem(`${currentWorkoutID}-reps-${d}-${i}`) || '';
+            const vol = (wv && rv) ? (parseFloat(wv) * parseFloat(rv)) : 0;
+            dayTot += vol;
 
             const manualLink = e[3] || "#";
 
-            html+=`<tr>
+            html += `<tr>
                 <td class="td-ex"><span class="ex-name" onclick="openImage('${e[0]}','${e[2]}')">${e[0]}</span></td>
                 <td style="color:#7f8c8d; font-size:0.8rem">${e[1]}</td>
                 <td>${manualLink !== "#" ? `<a href="${manualLink}" target="_blank" class="video-link">Video</a>` : '-'}</td>
@@ -227,7 +330,7 @@ function render(){
             </tr>`;
         });
 
-        html+=`</tbody>
+        html += `</tbody>
             <tfoot>
                 <tr class="total-row">
                     <td colspan="5" class="total-label">Volume Totale Giorno</td>
@@ -235,18 +338,17 @@ function render(){
                 </tr>
             </tfoot>
             </table></div>`;
-        app.innerHTML+=html;
+        app.innerHTML += html;
     });
     updateGlobalTotal();
 }
 
-function updateValues(d,i){
-    const wInput=document.getElementById(`w-${d}-${i}`);
-    const rInput=document.getElementById(`r-${d}-${i}`);
-    const vDisplay=document.getElementById(`v-${d}-${i}`);
-    const row=wInput.closest('tr');
+function updateValues(d, i){
+    const wInput = document.getElementById(`w-${d}-${i}`);
+    const rInput = document.getElementById(`r-${d}-${i}`);
+    const vDisplay = document.getElementById(`v-${d}-${i}`);
     
-    let vol=0;
+    let vol = 0;
     if(wInput.value && rInput.value){
         vol = parseFloat(wInput.value) * parseFloat(rInput.value);
         vDisplay.innerText = vol.toFixed(1);
@@ -254,35 +356,25 @@ function updateValues(d,i){
         vDisplay.innerText = "0.0";
     }
 
-    localStorage.setItem(`weight-${d}-${i}`, wInput.value);
-    localStorage.setItem(`reps-${d}-${i}`, rInput.value);
-
-    // Gestione PR (Personal Record)
-    const best=parseFloat(localStorage.getItem(`best-${d}-${i}`)||0);
-    if(vol > best && vol > 0){
-        localStorage.setItem(`best-${d}-${i}`, vol);
-        row.classList.add('pr');
-        setTimeout(()=>row.classList.remove('pr'), 800);
-    }
+    // Salvataggio con prefisso della scheda attuale
+    localStorage.setItem(`${currentWorkoutID}-weight-${d}-${i}`, wInput.value);
+    localStorage.setItem(`${currentWorkoutID}-reps-${d}-${i}`, rInput.value);
 
     updateDayTotal(d);
     updateGlobalTotal();
 }
 
 function updateDayTotal(d){
-    let t=0;
-    workout[d].ex.forEach((_,i)=>{
-        t += parseFloat(document.getElementById(`v-${d}-${i}`).innerText || 0);
-    });
+    let t = 0;
+    const volumes = document.querySelectorAll(`[id^="v-${d}-"]`);
+    volumes.forEach(v => t += parseFloat(v.innerText || 0));
     document.getElementById(`day-total-${d}`).innerText = t.toFixed(1);
 }
 
 function updateGlobalTotal(){
-    let g=0;
-    workout.forEach((_,d)=>{
-        const dayVal = document.getElementById(`day-total-${d}`);
-        if(dayVal) g += parseFloat(dayVal.innerText || 0);
-    });
+    let g = 0;
+    const dayTotals = document.querySelectorAll(`[id^="day-total-"]`);
+    dayTotals.forEach(dt => g += parseFloat(dt.innerText || 0));
     document.getElementById('globalTotal').innerText = g.toFixed(1);
 }
 
@@ -295,20 +387,7 @@ function closeImage(){
     document.getElementById('modal').style.display="none";
 }
 
-// Inizializzazione
 render();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
