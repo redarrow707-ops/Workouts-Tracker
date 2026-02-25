@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.5">
-<title>Workouts Tracker 2.01</title>
+<title>Workouts Tracker 3.01</title>
 
 <style>
 body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
@@ -11,10 +11,17 @@ body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
 .day-header{background:#2c3e50;color:#fff;padding:18px;font-size:1.5rem}
 .warmup{background:#eef2f7;padding:14px;font-weight:bold;font-style:italic}
 table{width:100%;border-collapse:collapse}
+	
 th{background:#f8f9fa;color:#7f8c8d;padding:12px;text-transform:uppercase}
 td{border-bottom:1px solid #eee;padding:10px;text-align:center}
+	
 .td-ex{text-align:left;padding-left:20px}
 .ex-name{color:#2980b9;font-weight:bold;cursor:pointer;text-decoration:underline}
+
+  /* Bottone Link Manuale */
+   .video-link { color: #3498db; text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid #3498db; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; }
+  .video-link:hover { background: #3498db; color: white; }
+	
 input{width:55px;padding:6px;border-radius:6px;border:1px solid #ccc}
 .vol-display{font-weight:bold;color:#27ae60}
 .day-total{background:#ecf0f1;font-weight:bold;text-align:right;padding:14px}
@@ -72,7 +79,7 @@ const workout = [
         day: "Giorno A: Upper body - CHEST",
         warm: "Jumping Jacks (2 min) - Riposo tra le serie : 2:30 minuti",
         ex: [
-            ["1 - Spinte Manubri Panca Inclinata / Incline Dumbbell Press", "3x10-12", "IMG/Spintemanubri.jpg"],
+            ["1 - Spinte Manubri Panca Inclinata / Incline Dumbbell Press", "3x10-12", "IMG/Spintemanubri.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html"],
             ["2 - Pressa piana bilanciere / Bench Press", "4x8-10", "IMG/Pressapiana.jpg"],
             ["3 - Fly manubri a Terra / Ground Dumbbell Fly", "4x10-12", "IMG/Flyterra.jpg"],
             ["4 - T-Bar", "4x20-24", "IMG/Tbar.jpg"],
@@ -236,6 +243,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
