@@ -8,7 +8,9 @@
 <style>
 body{font-family:-apple-system;background:#f4f4f9;margin:0;padding:25px}
 .day-card{background:#fff;border-radius:18px;margin-bottom:30px;box-shadow:0 12px 20px rgba(0,0,0,.1);overflow:hidden}
-.day-header{background:#2c3e50;color:#fff;padding:18px;font-size:1.5rem}
+.day-header{background:#2c3e50;color:#fff;padding:18px;font-size:1.5rem;display:flex;align-items:center;gap:14px;cursor:pointer}
+.day-header .day-thumb{width:46px;height:46px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,.5);flex-shrink:0}
+.day-header .day-title{flex:1}
 .warmup{background:#eef2f7;padding:14px;font-weight:bold;font-style:italic;border-bottom:1px solid #dee2e6}
 table{width:100%;border-collapse:collapse}
 	
@@ -101,6 +103,7 @@ const allWorkouts = {
         days: [
             {
                 day: "Giorno A: Upper body - CHEST",
+        dayImg: "IMG/Giorno A.jpg",
         warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
             ["1 - Spinte Manubri Panca Inclinata", "3 x 10-12", "IMG/Spintemanubri.jpg", "https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html"],
@@ -115,6 +118,7 @@ const allWorkouts = {
     },
     {
         day: "Giorno B: Core 1",
+        dayImg: "IMG/Giorno B.jpg",
 	    warm: "Jumping Jacks (2 min) - Riposo : 1:30 min",
         ex: [
             ["1 - Plank", "60s+", "IMG/Plank.jpg", "https://www.muscleandstrength.com/exercises/hover.html"],
@@ -131,6 +135,7 @@ const allWorkouts = {
     },
     {
         day: "Giorno C: Upper body - BACK",
+        dayImg: "IMG/Giorno C.jpg",
         warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
             ["1 - Remata con manubri", "4 x 10-12", "IMG/Rematore.jpg", "https://www.muscleandstrength.com/exercises/one-arm-dumbbell-row.html"],
@@ -145,6 +150,7 @@ const allWorkouts = {
     },
     {
         day: "Giorno D: Lower body - LEGS",
+        dayImg: "IMG/Giorno D.jpg",
         warm: "Jumping Jacks (2 min) - Riposo : 3 min",
         ex: [
 	    ["1 - Stacchi da terra bilanciere", "3 x 8-10", "IMG/Deadlift.jpg", "https://www.muscleandstrength.com/exercises/deadlifts.html"],
@@ -160,6 +166,7 @@ const allWorkouts = {
     },
     {
         day: "Giorno E: Upper body - SHOULDERS",
+        dayImg: "IMG/Giorno E.jpg",
         warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
         ex: [
             ["1 - Dumbbell Military Press", "4 x 8-10", "IMG/Militarypress.jpg", "https://www.muscleandstrength.com/exercises/military-press.html"],
@@ -174,6 +181,7 @@ const allWorkouts = {
     },
     {
         day: "Giorno F: Core 2",
+        dayImg: "IMG/Giorno F.jpg",
 	    warm: "Jumping Jacks (4 min) - Riposo : 1:30 min",
         ex: [
             ["1 - Plank", "60s+", "IMG/Plank.jpg", "https://www.muscleandstrength.com/exercises/hover.html"],
@@ -190,6 +198,7 @@ const allWorkouts = {
 	},
 	{
         day: "ARMS SUPERSET",
+        dayImg: "IMG/Arms Superset.jpg",
         warm: "Jumping Jacks (2 min) - Riposo tra i superset : 2:30 min",
         ex: [
             ["A1 - Panca presa stretta", "3 x 8-10", "IMG/Presastretta.jpg", "https://www.muscleandstrength.com/exercises/close-grip-bench-press.html"],
@@ -227,6 +236,7 @@ const allWorkouts = {
 
 {
                 day: "DAY 1B: TRICEPS, CORE",
+                dayImg: "IMG/Day 1B.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                     ["1 - French Press", "3 x 10-12", "IMG/Floorfrenchpress.jpg", "https://www.muscleandstrength.com/exercises/lying-dumbbell-extension.html"],
@@ -239,6 +249,7 @@ const allWorkouts = {
 	
             {
                 day: "DAY 2A: LEGS, SHOULDERS",
+                dayImg: "IMG/Day 2A.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                     ["1 - Squat con Bilanciere", "4 x 8-10", "IMG/Barbellsquat.jpg", "https://www.muscleandstrength.com/exercises/front-squat.html"],
@@ -252,6 +263,7 @@ const allWorkouts = {
             },
  {
                 day: "DAY 2B: BICEPS, CORE",
+                dayImg: "IMG/Day 2B.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                     ["1 - Curl con Bilanciere", "3 x 10-12", "IMG/Dumbbellcurl.jpg", "https://www.muscleandstrength.com/exercises/standing-barbell-curl.html"],
@@ -264,6 +276,7 @@ const allWorkouts = {
 
             {
                 day: "DAY 3A: BACK, CHEST",
+                dayImg: "IMG/Day 3A.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                 ["1 - Chin-Up", "3 x max", "IMG/Trazionisbarra.jpg", "https://www.muscleandstrength.com/exercises/weighted-chin-up"],
@@ -275,6 +288,7 @@ const allWorkouts = {
             },
             {
                 day: "DAY 3B: TRICEPS, CORE",
+                dayImg: "IMG/Day 3B.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                 ["1 - Estensioni dietro nuca", "3 x 8-10", "IMG/overheadtricepsextensions.jpg", "https://www.muscleandstrength.com/exercises/two-arm-dumbbell-extension.html"],
@@ -287,6 +301,7 @@ const allWorkouts = {
 					
 			{                 
                 day: "DAY 4A: SHOULDERS, BICEPS",
+                dayImg: "IMG/Day 4A.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                 ["1 - Arnold Press", "3 x 10-12", "IMG/Arnoldpress.jpg", "https://www.muscleandstrength.com/exercises/seated-arnold-press.html"],
@@ -300,6 +315,7 @@ const allWorkouts = {
 
 			{                 
                 day: "DAY 4B: LEGS, CORE",
+                dayImg: "IMG/Day 4B.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 2:30 min",
                 ex: [
                 ["1 - Affondi alternati", "3 x 10-12/lato", "IMG/Affondialternati.jpg", "https://www.muscleandstrength.com/exercises/dumbbell-lunge.html"], 
@@ -312,6 +328,7 @@ const allWorkouts = {
 			
             {  
                 day: "DAY 5: CORE (Optional)",
+                dayImg: "IMG/Day 5.jpg",
                 warm: "Jumping Jacks (2 min) - Riposo : 1:30 min",
                 ex: [
                 ["1 - Plank su Palla Svizzera", "3 x 60sec", "IMG/Plank.jpg", "https://www.muscleandstrength.com/exercises/swiss-ball-hover.html"],
@@ -346,8 +363,12 @@ function render(){
     app.innerHTML = '';
     
     workoutData.days.forEach((w, d) => {
+        const dayImgSrc = w.dayImg || 'IMG/default-day.jpg';
         let html = `<div class="day-card">
-            <div class="day-header">${w.day}</div>
+            <div class="day-header" onclick="openImage('${w.day}','${dayImgSrc}')">
+                <img class="day-thumb" src="${dayImgSrc}" alt="${w.day}" onerror="this.style.display='none'">
+                <span class="day-title">${w.day}</span>
+            </div>
             <div class="warmup">${w.warm}</div>
             <table>
                 <thead>
@@ -463,8 +484,3 @@ render();
 </script>
 </body>
 </html>
-
-
-
-
-
